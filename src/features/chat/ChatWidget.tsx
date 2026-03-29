@@ -39,6 +39,7 @@ import RichMessageRenderer from './RichMessageRenderer'
 interface Message {
   role: 'user' | 'assistant'
   text: string
+  response?: string
   status?: string     // shown while status frames arrive
   streaming?: boolean // true while chunk frames are arriving
   image?: string
@@ -109,6 +110,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [summaryCopied, setSummaryCopied] = useState(false)
   const [drawerTab, setDrawerTab] = useState(0)
+  const [docSummariesOpen, setDocSummariesOpen] = useState(true)
   const recognitionRef = useRef<any | null>(null)
   // Persistent WebSocket refs
   const wsRef = useRef<WebSocket | null>(null)
@@ -290,13 +292,24 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
               const list = [...prev]
               const last = list[list.length - 1]
               if (last?.role === 'assistant' && last.streaming) {
-                return list.map((m, i) =>
+                const updated = list.map((m, i): Message =>
                   i === list.length - 1
-                    ? { ...m, streaming: false, status: undefined, sources: result.sources, parts: result.parts }
+                    ? { ...m, streaming: false, status: undefined, sources: result.sources, parts: result.parts ?? [], response: result.response || m.response, text: result.response || m.text }
                     : m
                 )
+               return updated
               }
-              return [...list, { role: 'assistant', text: result.response || '', streaming: false, sources: result.sources, parts: result.parts, timestamp: new Date() }]
+              const appendedMessage: Message = {
+                role: 'assistant',
+                text: result.response || '',
+                response: result.response || '',
+                streaming: false,
+                sources: result.sources,
+                parts: result.parts ?? [],
+                timestamp: new Date(),
+              }
+              const appended = [...list, appendedMessage]
+              return appended
             })
             setLoading(false)
             break
@@ -600,62 +613,76 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
             </Box>
           )}
 
-          {/* ── Document summary chips strip ── */}
+          {/* ── Document summary drawer (vertical collapsible) ── */}
           {showDocSummaries && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.75,
-                px: 2,
-                py: 0.75,
-                overflowX: 'auto',
-                flexShrink: 0,
-                scrollbarWidth: 'none',
-                '&::-webkit-scrollbar': { display: 'none' },
-                borderBottom: `1px solid ${alpha(config.theme.primary_color, 0.14)}`,
-                bgcolor: alpha(config.theme.primary_color, 0.04),
-              }}
-            >
-              <ArticleOutlinedIcon sx={{ fontSize: 13, color: alpha(config.theme.primary_color, 0.6), flexShrink: 0 }} />
-              {docsLoading && (
-                <>
-                  {[80, 60, 72].map((w) => (
-                    <Box key={w} sx={{ width: w, height: 22, borderRadius: 3, bgcolor: alpha(config.theme.primary_color, 0.12), flexShrink: 0, animation: 'pulse 1.4s ease-in-out infinite', '@keyframes pulse': { '0%,100%': { opacity: 0.5 }, '50%': { opacity: 1 } } }} />
-                  ))}
-                </>
-              )}
-              {!docsLoading && !assistantId && (
-                <Typography sx={{ fontSize: '0.65rem', color: alpha(config.theme.text_color, 0.4), fontStyle: 'italic' }}>
-                  Open via assistant to view documents
-                </Typography>
-              )}
-              {!docsLoading && assistantId && docSummaries.length === 0 && (
-                <Typography sx={{ fontSize: '0.65rem', color: alpha(config.theme.text_color, 0.4), fontStyle: 'italic' }}>
-                  No documents indexed
-                </Typography>
-              )}
-              {!docsLoading && docSummaries.map((doc) => (
-                <Chip
-                  key={doc.source}
-                  label={doc.summary_name || doc.source}
+            <Box sx={{ display: 'flex', flexDirection: 'column', flexShrink: 0, borderBottom: `1px solid ${alpha(config.theme.primary_color, 0.14)}`, bgcolor: alpha(config.theme.primary_color, 0.04) }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 0.6 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <ArticleOutlinedIcon sx={{ fontSize: 13, color: alpha(config.theme.primary_color, 0.6) }} />
+                  <Typography sx={{ color: config.theme.text_color, fontWeight: 600, fontSize: '0.75rem' }}>Documents Summary</Typography>
+                </Box>
+                <Button
                   size="small"
-                  icon={<ChevronRightRoundedIcon sx={{ fontSize: '14px !important' }} />}
-                  onClick={() => void openSummaryPanel(doc.source)}
-                  sx={{
-                    height: 22,
-                    fontSize: '0.62rem',
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    bgcolor: alpha(config.theme.primary_color, 0.1),
-                    border: `1px solid ${alpha(config.theme.primary_color, 0.28)}`,
-                    color: config.theme.text_color,
-                    '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.2) },
-                    '& .MuiChip-label': { px: 0.75 },
-                    '& .MuiChip-icon': { color: alpha(config.theme.primary_color, 0.7) },
-                  }}
-                />
-              ))}
+                  onClick={() => setDocSummariesOpen((open) => !open)}
+                  sx={{ textTransform: 'none', fontSize: '0.72rem' }}
+                >
+                  {docSummariesOpen ? 'Collapse' : 'Expand'}
+                </Button>
+              </Box>
+
+              {docSummariesOpen && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, px: 1.5, py: 0.75, maxHeight: 180, overflowY: 'auto' }}>
+                  {docsLoading && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      {[80, 60, 72].map((w) => (
+                        <Box key={w} sx={{ width: w, height: 22, borderRadius: 3, bgcolor: alpha(config.theme.primary_color, 0.12), animation: 'pulse 1.4s ease-in-out infinite', '@keyframes pulse': { '0%,100%': { opacity: 0.5 }, '50%': { opacity: 1 } } }} />
+                      ))}
+                    </Box>
+                  )}
+
+                  {!docsLoading && !assistantId && (
+                    <Typography sx={{ fontSize: '0.65rem', color: alpha(config.theme.text_color, 0.4), fontStyle: 'italic' }}>
+                      Open via assistant to view documents
+                    </Typography>
+                  )}
+
+                  {!docsLoading && assistantId && docSummaries.length === 0 && (
+                    <Typography sx={{ fontSize: '0.65rem', color: alpha(config.theme.text_color, 0.4), fontStyle: 'italic' }}>
+                      No documents indexed
+                    </Typography>
+                  )}
+
+                  {!docsLoading && docSummaries.length > 0 && (
+                    <Box sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      alignItems: 'flex-start',
+                      gap: 0.5,
+                    }}>
+                      {docSummaries.map((doc) => (
+                        <Chip
+                          key={doc.source}
+                          label={doc.summary_name || doc.source}
+                          onClick={() => void openSummaryPanel(doc.source)}
+                          sx={{
+                            width: 'auto',
+                            minWidth: 80,
+                            maxWidth: 'calc(50% - 4px)',
+                            justifyContent: 'space-between',
+                            fontSize: '0.72rem',
+                            bgcolor: alpha(config.theme.primary_color, 0.08),
+                            border: `1px solid ${alpha(config.theme.primary_color, 0.28)}`,
+                            color: config.theme.text_color,
+                            '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.16) },
+                            '& .MuiChip-icon': { color: alpha(config.theme.primary_color, 0.7) },
+                          }}
+                          icon={<ChevronRightRoundedIcon sx={{ fontSize: '14px !important' }} />}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              )}
             </Box>
           )}
 
@@ -738,13 +765,16 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                     />
                   )}
 
-                  {msg.role === 'assistant' && msg.parts && msg.parts.length > 0 && !msg.streaming ? (
-                    <RichMessageRenderer
-                      parts={msg.parts}
-                      primaryColor={config.theme.primary_color}
-                      accentColor={config.theme.accent_color}
-                      textColor={config.theme.mode === 'dark' ? '#fff' : config.theme.text_color}
-                    />
+                  {msg.role === 'assistant'  && !msg.streaming ? (
+                    <>
+                     <RichMessageRenderer
+                        response={msg.response || msg.text || ''}
+                        parts={msg.parts ?? []}
+                        primaryColor={config.theme.primary_color}
+                        accentColor={config.theme.accent_color}
+                        textColor={config.theme.mode === 'dark' ? '#fff' : config.theme.text_color}
+                      />
+                    </>
                   ) : (
                     (msg.text || msg.status) && (
                       <Box>

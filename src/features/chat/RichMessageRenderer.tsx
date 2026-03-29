@@ -13,6 +13,7 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import { RichPart, parseInlineMarkdown, CardPart, ButtonGroupPart } from './richContent'
 
 interface Props {
+  response?: string
   parts: RichPart[]
   primaryColor: string
   accentColor: string
@@ -256,7 +257,7 @@ function SmartTextRenderer({
 
 // ─── Card Part ───────────────────────────────────────────────────────────────
 
-function CardRenderer({ part, primary, accent }: { part: CardPart; primary: string; accent: string }) {
+function CardRenderer({ part, primary, accent, textColor }: { part: CardPart; primary: string; accent: string; textColor?: string }) {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const grad = gradient(primary, accent)
@@ -309,7 +310,7 @@ function CardRenderer({ part, primary, accent }: { part: CardPart; primary: stri
       )}
 
       <Box sx={{ px: 1.5, pt: part.image_url || part.badge ? 1 : 1.5, pb: part.actions?.length ? 0 : 1.5 }}>
-        <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem', lineHeight: 1.3 }}>
+        <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem', lineHeight: 1.3, color: textColor || 'text.primary' }}>
           {part.title}
         </Typography>
         {part.subtitle && (
@@ -393,7 +394,25 @@ function ButtonGroupRenderer({ part, primary, accent }: { part: ButtonGroupPart;
 
 // ─── Main renderer ───────────────────────────────────────────────────────────
 
-export default function RichMessageRenderer({ parts, primaryColor, accentColor, textColor }: Props) {
+export default function RichMessageRenderer({ response, parts, primaryColor, accentColor, textColor }: Props) {
+  if ((!parts || parts.length === 0) && response) {
+    console.log('DEBUG: RichMessageRenderer fallback response shown', { response })
+
+    return (
+      <Typography
+        variant="body2"
+        sx={{
+          color: textColor || 'text.primary',
+          whiteSpace: 'pre-wrap',
+          lineHeight: 1.65,
+          fontSize: '0.82rem',
+        }}
+      >
+        {response}
+      </Typography>
+    )
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
       {parts.map((part, idx) => {
@@ -426,7 +445,7 @@ export default function RichMessageRenderer({ parts, primaryColor, accentColor, 
               </Box>
             )
           case 'card':
-            return <CardRenderer key={key} part={part} primary={primaryColor} accent={accentColor} />
+            return <CardRenderer key={key} part={part} primary={primaryColor} accent={accentColor} textColor={textColor} />
           case 'button_group':
             return <ButtonGroupRenderer key={key} part={part} primary={primaryColor} accent={accentColor} />
           case 'list':
