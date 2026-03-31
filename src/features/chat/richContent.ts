@@ -65,6 +65,17 @@ export interface HeadingPart {
   text: string
 }
 
+export interface AccountItem {
+  provider: string
+  display_name?: string
+  url: string
+}
+
+export interface AccountPart {
+  type: 'accounts'
+  accounts: AccountItem[]
+}
+
 export type RichPart =
   | TextPart
   | ImagePart
@@ -74,6 +85,7 @@ export type RichPart =
   | DividerPart
   | CodePart
   | HeadingPart
+  | AccountPart
 
 // ─── Extended API response ───────────────────────────────────────────────────
 

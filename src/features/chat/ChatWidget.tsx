@@ -409,6 +409,8 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const showHumanHandoff = config.show_human_handoff ?? false
   const showDocSummaries = config.show_doc_summaries ?? false
 
+  const assistantStreaming = messages.some((m) => m.role === 'assistant' && m.streaming)
+
   function formatTime(date: Date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
@@ -876,8 +878,8 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
               </Box>
             ))}
 
-            {/* Typing indicator */}
-            {loading && (
+            {/* Typing indicator (only when no streaming assistant message already exists) */}
+            {loading && !assistantStreaming && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box
                   sx={{
@@ -1273,8 +1275,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
               flexDirection: 'column',
               overflow: 'hidden',
               borderLeft: `1px solid ${alpha(config.theme.primary_color, 0.25)}`,
-              bgcolor: config.theme.mode === 'dark' ? '#0f0f1e' : '#f8f8fc',
-              boxShadow: '-20px 0 60px rgba(0,0,0,0.65)',
+              bgcolor: config.theme.mode === 'dark' ? '#0f0f1e' : '#f8f8fc'
             }}
           >
             {/* Rich gradient header */}

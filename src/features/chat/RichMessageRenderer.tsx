@@ -10,7 +10,12 @@ import {
 } from '@mui/material'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
-import { RichPart, parseInlineMarkdown, CardPart, ButtonGroupPart } from './richContent'
+import InstagramIcon from '@mui/icons-material/Instagram'
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import FacebookIcon from '@mui/icons-material/Facebook'
+import EmailIcon from '@mui/icons-material/Email'
+import { RichPart, parseInlineMarkdown, CardPart, ButtonGroupPart, AccountPart } from './richContent'
 
 interface Props {
   response?: string
@@ -159,10 +164,16 @@ function parseBlocks(raw: string): Block[] {
       continue
     }
 
-    const bulletMatch = line.match(/^[\s]*(?:-|\*|•|🔹|💡|✅|🔸|➡️|▪️)\s+(.+)/)
+    const bulletMatch = line.match(/^[\s]*([-\*•🔹💡✅🔸➡️▪️])\s+(.+)/)
     if (bulletMatch) {
       flushNumbered()
-      bulletBuf.push(bulletMatch[1])
+      const symbol = bulletMatch[1]
+      let item = bulletMatch[2]
+      // Preserve decorative emoji markers as visible text
+      if (['🔹', '💡', '✅', '🔸', '➡️', '▪️'].includes(symbol)) {
+        item = `${symbol} ${item}`
+      }
+      bulletBuf.push(item)
       continue
     }
 
@@ -392,6 +403,52 @@ function ButtonGroupRenderer({ part, primary, accent }: { part: ButtonGroupPart;
   )
 }
 
+function providerIcon(provider: string) {
+  const key = provider.toLowerCase()
+  if (key.includes('whatsapp')) return <WhatsAppIcon sx={{ fontSize: 16, color: '#25D366' }} />
+  if (key.includes('instagram')) return <InstagramIcon sx={{ fontSize: 16, color: '#E1306C' }} />
+  if (key.includes('linkedin')) return <LinkedInIcon sx={{ fontSize: 16, color: '#0A66C2' }} />
+  if (key.includes('facebook')) return <FacebookIcon sx={{ fontSize: 16, color: '#1877F2' }} />
+  if (key.includes('gmail') || key.includes('email')) return <EmailIcon sx={{ fontSize: 16, color: '#D93025' }} />
+  return <OpenInNewRoundedIcon sx={{ fontSize: 16, color: '#666' }} />
+}
+
+function AccountRenderer({ part, primaryColor, textColor }: { part: AccountPart; primaryColor: string; textColor?: string }) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 0.75, borderRadius: 2, background: alpha(primaryColor, 0.02) }}>
+      {part.accounts.map((account, i) => (
+        <Box
+          key={`${account.provider}-${i}`}
+          component="a"
+          href={account.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            px: 0.5,
+            py: 0.35,
+            borderRadius: 1.5,
+            color: textColor || 'text.primary',
+            textDecoration: 'none',
+            fontWeight: 600,
+            fontSize: '0.78rem',
+            transition: 'background 0.2s ease',
+            '&:hover': { bgcolor: alpha(primaryColor, 0.08) },
+          }}
+        >
+          {providerIcon(account.provider)}
+          <Typography sx={{ lineHeight: 1.25, color: 'inherit' }}>
+            {account.display_name || account.provider}
+          </Typography>
+          <OpenInNewRoundedIcon sx={{ fontSize: 12, color: alpha(primaryColor, 0.7), ml: 'auto' }} />
+        </Box>
+      ))}
+    </Box>
+  )
+}
+
 // ─── Main renderer ───────────────────────────────────────────────────────────
 
 export default function RichMessageRenderer({ response, parts, primaryColor, accentColor, textColor }: Props) {
@@ -469,6 +526,8 @@ export default function RichMessageRenderer({ response, parts, primaryColor, acc
                 ))}
               </Box>
             )
+          case 'accounts':
+            return <AccountRenderer key={key} part={part} primaryColor={primaryColor} textColor={textColor} />
           case 'divider':
             return <Divider key={key} sx={{ my: 0.25, borderColor: alpha(primaryColor, 0.2) }} />
           case 'code':
