@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { applySecurityInterceptor } from './securityInterceptor'
 
 // ---------------------------------------------------------------------------
 // Axios instance for the customer-facing chat widget.
@@ -12,7 +13,8 @@ export const apiClient = axios.create({
   withCredentials: true, // Send cookies with cross-domain requests
 })
 
-// Attach optional static API key from env (no user login required).
+// Attach security headers and optional static API key from env (no user login required).
+applySecurityInterceptor(apiClient)
 apiClient.interceptors.request.use((config) => {
   const apiKey = import.meta.env.VITE_API_KEY as string | undefined
   if (apiKey) {

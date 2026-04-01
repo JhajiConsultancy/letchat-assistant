@@ -3,92 +3,476 @@ import {
   Bot,
   Globe,
   Shield,
-  Zap
+  Zap,
+  Store,
+  Users,
+  Share2,
+  MessageCircle,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  Star,
+  Palette,
+  Type,
+  Image,
+  Layers,
 } from 'lucide-react';
+
+const USE_CASES = [
+  {
+    emoji: '🏪',
+    icon: <Store size={22} />,
+    title: 'Shop Owner',
+    desc: 'Running a local store or selling online? Your AI clone answers "What are your timings?", "Do you have this in stock?", "Cash or card?" — even at 2 AM while you sleep.',
+    tag: 'Retail & E-commerce',
+  },
+  {
+    emoji: '💇',
+    icon: <Users size={22} />,
+    title: 'Freelancer / Salon / Clinic',
+    desc: 'Set up your assistant once. It handles appointment queries, service FAQs, and pricing — so you can focus on your craft.',
+    tag: 'Service Businesses',
+  },
+  {
+    emoji: '📲',
+    icon: <Share2 size={22} />,
+    title: 'Social Media Creator',
+    desc: 'Drop your chat link in your Instagram bio, WhatsApp status, or Facebook page. Followers get instant replies. You get your time back.',
+    tag: 'Creators & Influencers',
+  },
+  {
+    emoji: '🏘️',
+    icon: <MessageCircle size={22} />,
+    title: 'Community Helper',
+    desc: 'A teacher, doctor, or local expert? Let your AI clone share knowledge, answer common questions, and help your community — 24/7.',
+    tag: 'Educators & Experts',
+  },
+];
+
+const STEPS = [
+  {
+    step: '01',
+    title: 'Create Your Assistant',
+    desc: 'Sign up and describe yourself — your name, what you do, and the questions you usually get asked.',
+  },
+  {
+    step: '02',
+    title: 'Teach It Your Knowledge',
+    desc: 'Upload a document, paste your FAQs, or just type some info. Your AI clone learns from it instantly.',
+  },
+  {
+    step: '03',
+    title: 'Share the Link — Go Live!',
+    desc: 'Copy your unique chat link. Paste it anywhere — social profiles, WhatsApp, your website. You\'re live!',
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Priya M.',
+    role: 'Boutique Owner, Mumbai',
+    text: 'My assistant answers 50+ questions a day. I haven\'t missed a single customer query since I set it up.',
+    stars: 5,
+  },
+  {
+    name: 'Rajan T.',
+    role: 'Yoga Instructor, Pune',
+    text: 'I pasted the link in my Instagram bio. My students get class schedules and pricing right away. Game changer!',
+    stars: 5,
+  },
+  {
+    name: 'Meera K.',
+    role: 'Home Baker',
+    text: 'Orders used to get lost in DMs. Now my AI assistant handles all the order queries and I just bake. 🎂',
+    stars: 5,
+  },
+];
 
 /**
  * LANDING PAGE COMPONENT
  */
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-[#0D0D17] text-white selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#0D0D17] text-white selection:bg-purple-500/30 overflow-x-hidden">
+
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-white/5 backdrop-blur-md sticky top-0 z-50">
+      <nav className="flex items-center justify-between px-6 py-4 border-b border-white/5 backdrop-blur-md sticky top-0 z-50 bg-[#0D0D17]/80">
         <div className="flex items-center gap-2">
-            <img src="/assets/logo.svg" alt="LetChat logo" className="w-8 h-8 object-contain" />
-            <span className="font-bold text-xl tracking-tight">LetChat</span>
-          </div>
+          <img src="/assets/logo.svg" alt="LetChat logo" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-xl tracking-tight">LetChat</span>
+        </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-          <a href="#" className="hover:text-white transition-colors">Product</a>
-          <a href="#" className="hover:text-white transition-colors">Solutions</a>
-          <a href="#" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#" className="hover:text-white transition-colors">Documentation</a>
+          <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+          <a href="#use-cases" className="hover:text-white transition-colors">Use Cases</a>
+          <a href="#testimonials" className="hover:text-white transition-colors">Stories</a>
         </div>
         <button
           onClick={() => window.location.assign('https://admin.letchat.in')}
-          className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-sm font-medium transition-all"
+          className="px-4 py-2 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-full text-sm font-medium transition-all"
         >
-          Sign In
+          Start Free →
         </button>
       </nav>
 
-      {/* Hero Section */}
-      <main className="max-w-6xl mx-auto px-6 pt-24 pb-12">
-        <div className="text-center space-y-8">
-         <div className="flex flex-col items-center gap-3">
-            <span className="text-3xl font-extrabold tracking-tight text-[#8E74E4]">LetChat</span>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8E74E4]/10 text-[#8E74E4] text-xs font-semibold uppercase tracking-wider animate-pulse">
-              <Zap size={14} />
-              Next Gen AI Support
-            </div>
+      {/* ── Hero ── */}
+      <main className="max-w-6xl mx-auto px-6">
+
+        <section className="pt-20 pb-12 text-center space-y-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8E74E4]/10 text-[#8E74E4] text-xs font-semibold uppercase tracking-wider animate-pulse">
+            <Zap size={13} />
+            3 Clicks &amp; You're Live
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-            Elevate your customer <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8E74E4] to-indigo-400">
-              engagement strategy.
+
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
+            Clone Yourself.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8E74E4] via-violet-400 to-indigo-400">
+              Be Available 24 × 7.
             </span>
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Integrate powerful AI assistants into your website in seconds. No coding required. 
-            Scale your support without scaling your team.
+
+          <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            Create a personal AI assistant that knows everything about you —
+            your work, your prices, your schedule.
+            Share one link and let it handle every question while you live your life.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <button 
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <button
               onClick={() => window.location.assign('https://admin.letchat.in')}
-              className="w-full sm:w-auto px-8 py-4 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 text-white"
             >
-              Get Started Free <ChevronRight size={18} />
+              Create My AI Clone — Free <ChevronRight size={18} />
             </button>
-            <button className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 rounded-xl font-semibold transition-all border border-white/10">
-              View Documentation
+            <button
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 rounded-xl font-semibold transition-all border border-white/10"
+            >
+              See How It Works
             </button>
           </div>
-        </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mt-32">
-          {[
-            { icon: <Globe />, title: 'Global Reach', desc: 'Support 100+ languages automatically with native-level fluency.' },
-            { icon: <Shield />, title: 'Enterprise Secure', desc: 'End-to-end encryption and SOC2 compliance out of the box.' },
-            { icon: <Bot />, title: 'Smart Context', desc: 'Assistants learn from your docs, website, and past conversations.' }
-          ].map((f, i) => (
-            <div key={i} className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-[#8E74E4]/30 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-[#8E74E4]/10 text-[#8E74E4] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {f.icon}
+          {/* social proof bar */}
+          <div className="flex flex-wrap justify-center gap-6 pt-6 text-sm text-gray-400">
+            {['No credit card required', 'Live in under 2 minutes', 'Works on any device'].map((t) => (
+              <span key={t} className="flex items-center gap-1.5">
+                <CheckCircle2 size={14} className="text-[#8E74E4]" /> {t}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Visual Demo Card ── */}
+        <section className="flex justify-center pb-20">
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-white/5 backdrop-blur p-6 shadow-2xl shadow-purple-900/30">
+            {/* fake chat bubbles */}
+            <div className="space-y-3 text-sm">
+              <div className="flex gap-2 items-start">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8E74E4] to-indigo-500 flex items-center justify-center text-xs font-bold shrink-0">AI</div>
+                <div className="bg-white/10 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-xs text-gray-200">
+                  Hi! I'm Priya's assistant. How can I help you today? 👋
+                </div>
               </div>
-              <h3 className="text-xl font-bold mb-3">{f.title}</h3>
-              <p className="text-gray-400 leading-relaxed">{f.desc}</p>
+              <div className="flex gap-2 items-start justify-end">
+                <div className="bg-[#8E74E4]/80 rounded-2xl rounded-tr-none px-4 py-2.5 max-w-xs text-white">
+                  What are your shop timings?
+                </div>
+              </div>
+              <div className="flex gap-2 items-start">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8E74E4] to-indigo-500 flex items-center justify-center text-xs font-bold shrink-0">AI</div>
+                <div className="bg-white/10 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-xs text-gray-200">
+                  We're open Mon–Sat, 10 AM to 8 PM. Sunday by appointment. Want me to book a slot? 😊
+                </div>
+              </div>
+              <div className="flex gap-2 items-start justify-end">
+                <div className="bg-[#8E74E4]/80 rounded-2xl rounded-tr-none px-4 py-2.5 max-w-xs text-white">
+                  Yes please, Sunday at 11 AM works!
+                </div>
+              </div>
+              <div className="flex gap-2 items-start">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8E74E4] to-indigo-500 flex items-center justify-center text-xs font-bold shrink-0">AI</div>
+                <div className="bg-white/10 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-xs text-gray-200">
+                  Done! I've noted Sunday 11 AM for you. Priya will confirm shortly. 🎉
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+            {/* badge */}
+            <div className="absolute -top-3 -right-3 bg-[#8E74E4] text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
+              Live 24 × 7
+            </div>
+          </div>
+        </section>
+
+        {/* ── How It Works ── */}
+        <section id="how-it-works" className="py-20">
+          <div className="text-center mb-14">
+            <span className="text-[#8E74E4] text-sm font-semibold uppercase tracking-widest">As Easy As 1-2-3</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-3">
+              3 Clicks and You're Live
+            </h2>
+            <p className="text-gray-400 mt-4 max-w-xl mx-auto">
+              No developers. No complicated setup. Just you, your knowledge, and a link to share.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {STEPS.map((s, i) => (
+              <div key={i} className="relative p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-[#8E74E4]/40 transition-all group">
+                <span className="text-5xl font-black text-[#8E74E4]/20 group-hover:text-[#8E74E4]/40 transition-colors leading-none">{s.step}</span>
+                <h3 className="text-xl font-bold mt-3 mb-2">{s.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">{s.desc}</p>
+                {i < STEPS.length - 1 && (
+                  <ArrowRight size={20} className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[#8E74E4]/50 z-10" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={() => window.location.assign('https://admin.letchat.in')}
+              className="px-8 py-4 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/20 flex items-center gap-2"
+            >
+              <Sparkles size={18} /> Create My Assistant Now
+            </button>
+          </div>
+        </section>
+
+        {/* ── Use Cases ── */}
+        <section id="use-cases" className="py-20">
+          <div className="text-center mb-14">
+            <span className="text-[#8E74E4] text-sm font-semibold uppercase tracking-widest">Built For Everyone</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-3">
+              Your AI Clone, Any Role
+            </h2>
+            <p className="text-gray-400 mt-4 max-w-xl mx-auto">
+              Whether you're a shop owner, a teacher, or a creator — LetChat works for you.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {USE_CASES.map((u, i) => (
+              <div key={i} className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-[#8E74E4]/40 transition-all group flex gap-5">
+                <div className="text-4xl shrink-0">{u.emoji}</div>
+                <div>
+                  <span className="text-xs text-[#8E74E4] font-semibold uppercase tracking-wider">{u.tag}</span>
+                  <h3 className="text-xl font-bold mt-1 mb-2">{u.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm">{u.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Chat Studio ── */}
+        <section className="py-20">
+          <div className="text-center mb-14">
+            <span className="text-[#8E74E4] text-sm font-semibold uppercase tracking-widest">Introducing Chat Studio</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-3">
+              Design Your Chat Like a Pro.{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8E74E4] to-indigo-400">
+                Brand It Yourself.
+              </span>
+            </h2>
+            <p className="text-gray-400 mt-4 max-w-xl mx-auto">
+              No designer? No problem. Chat Studio gives you a live visual editor to make your assistant
+              look and feel exactly like your brand — colours, fonts, logo, and more.
+            </p>
+          </div>
+
+          {/* Studio preview card */}
+          <div className="relative rounded-3xl border border-[#8E74E4]/30 bg-gradient-to-br from-[#8E74E4]/10 to-indigo-900/10 overflow-hidden p-8 md:p-0 flex flex-col md:flex-row gap-0">
+
+            {/* Left: controls panel */}
+            <div className="md:w-80 shrink-0 p-8 border-b md:border-b-0 md:border-r border-white/5 space-y-5 flex-col flex">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-[#8E74E4]/20 flex items-center justify-center text-[#8E74E4]">
+                  <Palette size={16} />
+                </div>
+                <span className="font-bold text-sm">Chat Studio</span>
+                <span className="ml-auto text-xs bg-[#8E74E4]/20 text-[#8E74E4] px-2 py-0.5 rounded-full font-semibold">LIVE</span>
+              </div>
+
+              {/* colour swatches */}
+              <div>
+                <p className="text-xs text-gray-400 mb-2 font-medium">Brand Colour</p>
+                <div className="flex gap-2">
+                  {['#8E74E4','#e74c8e','#4ce7c3','#e7a34c','#4c8ee7'].map((c) => (
+                    <div key={c} style={{ backgroundColor: c }} className="w-7 h-7 rounded-full cursor-pointer ring-2 ring-transparent hover:ring-white/40 transition-all shrink-0" />
+                  ))}
+                </div>
+              </div>
+
+              {/* font style */}
+              <div>
+                <p className="text-xs text-gray-400 mb-2 font-medium">Font Style</p>
+                <div className="flex gap-2">
+                  {['Modern','Serif','Mono'].map((f) => (
+                    <div key={f} className={`text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-all ${f === 'Modern' ? 'border-[#8E74E4] bg-[#8E74E4]/15 text-[#8E74E4]' : 'border-white/10 text-gray-400 hover:border-white/20'}`}>{f}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* toggles */}
+              <div className="space-y-3">
+                {[
+                  { label: 'Show Logo', on: true },
+                  { label: 'Show Timestamps', on: false },
+                  { label: 'Dark Mode', on: true },
+                  { label: 'Emoji Picker', on: true },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">{item.label}</span>
+                    <div className={`w-9 h-5 rounded-full flex items-center px-0.5 transition-colors ${item.on ? 'bg-[#8E74E4]' : 'bg-white/10'}`}>
+                      <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${item.on ? 'translate-x-4' : 'translate-x-0'}`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2">
+                <div className="text-xs text-gray-400 mb-2 font-medium">Upload Logo</div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-white/15 text-gray-500 text-xs cursor-pointer hover:border-[#8E74E4]/50 hover:text-[#8E74E4] transition-all">
+                  <Image size={13} /> Drop your logo here
+                </div>
+              </div>
+            </div>
+
+            {/* Right: live chat preview */}
+            <div className="flex-1 p-8 flex flex-col gap-5">
+              <div className="flex items-center gap-2">
+                <Layers size={15} className="text-[#8E74E4]" />
+                <span className="text-xs text-gray-400 font-medium">Live Preview</span>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-[#0D0D17] overflow-hidden flex flex-col max-w-sm mx-auto w-full shadow-2xl">
+                {/* chat header */}
+                <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#8E74E4] to-indigo-500">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">SC</div>
+                  <div>
+                    <div className="text-white font-bold text-sm leading-none">Priya's Shop</div>
+                    <div className="text-white/70 text-xs mt-0.5">Always here to help ✨</div>
+                  </div>
+                </div>
+                {/* messages */}
+                <div className="p-4 space-y-3 text-xs">
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#8E74E4] to-indigo-500 flex items-center justify-center text-white font-bold shrink-0" style={{ fontSize: 9 }}>AI</div>
+                    <div className="bg-white/10 rounded-xl rounded-tl-none px-3 py-2 text-gray-200 max-w-[80%]">Hi! What can I help you with today? 😊</div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="bg-[#8E74E4] rounded-xl rounded-tr-none px-3 py-2 text-white max-w-[80%]">Do you deliver to Andheri?</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#8E74E4] to-indigo-500 flex items-center justify-center text-white font-bold shrink-0" style={{ fontSize: 9 }}>AI</div>
+                    <div className="bg-white/10 rounded-xl rounded-tl-none px-3 py-2 text-gray-200 max-w-[80%]">Yes! Free delivery above ₹499 to Andheri. 🛵</div>
+                  </div>
+                </div>
+                {/* input bar */}
+                <div className="px-3 pb-3">
+                  <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 border border-white/10">
+                    <span className="text-gray-500 text-xs flex-1">Type a message…</span>
+                    <div className="w-6 h-6 rounded-lg bg-[#8E74E4] flex items-center justify-center">
+                      <ChevronRight size={12} className="text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* feature pills */}
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            {[
+              { icon: <Palette size={16} />, title: 'Custom Colours', desc: 'Match your brand palette exactly.' },
+              { icon: <Type size={16} />, title: 'Font Control', desc: 'Pick the font that feels like you.' },
+              { icon: <Image size={16} />, title: 'Logo & Avatar', desc: 'Add your logo or a custom avatar.' },
+              { icon: <Layers size={16} />, title: 'Live Preview', desc: 'See every change instantly.' },
+            ].map((f, i) => (
+              <div key={i} className="flex gap-3 p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-[#8E74E4]/40 transition-all items-start">
+                <div className="w-8 h-8 rounded-lg bg-[#8E74E4]/15 text-[#8E74E4] flex items-center justify-center shrink-0">{f.icon}</div>
+                <div>
+                  <div className="font-semibold text-sm">{f.title}</div>
+                  <div className="text-gray-400 text-xs mt-0.5">{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Stats ── */}
+        <section className="py-16">
+          <div className="rounded-3xl bg-gradient-to-br from-[#8E74E4]/20 to-indigo-900/20 border border-[#8E74E4]/20 p-10 grid md:grid-cols-3 gap-8 text-center">
+            {[
+              { value: '24 × 7', label: 'Always-on for your customers', icon: <Clock size={24} /> },
+              { value: '2 min', label: 'Average setup time', icon: <Zap size={24} /> },
+              { value: '100+', label: 'Languages supported', icon: <Globe size={24} /> },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="text-[#8E74E4]">{s.icon}</div>
+                <div className="text-4xl font-black text-white">{s.value}</div>
+                <div className="text-gray-400 text-sm">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Testimonials ── */}
+        <section id="testimonials" className="py-20">
+          <div className="text-center mb-14">
+            <span className="text-[#8E74E4] text-sm font-semibold uppercase tracking-widest">Real People. Real Results.</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-3">
+              They Cloned Themselves 😄
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-[#8E74E4]/30 transition-all flex flex-col gap-4">
+                <div className="flex gap-1">
+                  {Array.from({ length: t.stars }).map((_, s) => (
+                    <Star key={s} size={14} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-300 leading-relaxed text-sm flex-1">"{t.text}"</p>
+                <div>
+                  <div className="font-bold text-sm">{t.name}</div>
+                  <div className="text-gray-500 text-xs">{t.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Final CTA ── */}
+        <section className="py-20 text-center">
+          <div className="rounded-3xl bg-gradient-to-br from-[#8E74E4]/30 to-indigo-900/30 border border-[#8E74E4]/30 px-8 py-16 space-y-6 max-w-2xl mx-auto">
+            <div className="text-5xl">🤖</div>
+            <h2 className="text-4xl font-extrabold">
+              Your AI Clone Is Waiting.
+            </h2>
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Stop missing messages. Stop repeating yourself.
+              Create your AI assistant in 3 clicks — completely free.
+            </p>
+            <button
+              onClick={() => window.location.assign('https://admin.letchat.in')}
+              className="inline-flex items-center gap-2 px-10 py-4 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-xl font-bold text-lg transition-all shadow-lg shadow-purple-500/30"
+            >
+              <Bot size={20} /> Create My AI Clone — Free
+            </button>
+            <p className="text-gray-500 text-sm">No credit card. No code. Just you.</p>
+          </div>
+        </section>
+
       </main>
 
-      <footer className="max-w-6xl mx-auto px-6 py-12 border-t border-white/5 mt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm">
-        <div>© 2026 LetChat Inc. All rights reserved.</div>
+      <footer className="max-w-6xl mx-auto px-6 py-12 border-t border-white/5 mt-4 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm">
+        <div className="flex items-center gap-2">
+          <img src="/assets/logo.svg" alt="LetChat logo" className="w-6 h-6 object-contain opacity-60" />
+          <span>© 2026 LetChat Inc. All rights reserved.</span>
+        </div>
         <div className="flex gap-8">
           <a href="#" className="hover:text-white">Privacy</a>
           <a href="#" className="hover:text-white">Terms</a>
-          {/* <a href="#" className="flex items-center gap-1 hover:text-white"><Github size={16} /> GitHub</a> */}
         </div>
       </footer>
     </div>

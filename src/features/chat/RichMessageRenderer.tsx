@@ -23,6 +23,7 @@ interface Props {
   primaryColor: string
   accentColor: string
   textColor?: string
+  onButtonClick?: (label: string) => void
 }
 
 const gradient = (primary: string, accent: string) =>
@@ -268,7 +269,7 @@ function SmartTextRenderer({
 
 // ─── Card Part ───────────────────────────────────────────────────────────────
 
-function CardRenderer({ part, primary, accent, textColor }: { part: CardPart; primary: string; accent: string; textColor?: string }) {
+function CardRenderer({ part, primary, accent, textColor, onButtonClick }: { part: CardPart; primary: string; accent: string; textColor?: string; onButtonClick?: (label: string) => void }) {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const grad = gradient(primary, accent)
@@ -338,31 +339,37 @@ function CardRenderer({ part, primary, accent, textColor }: { part: CardPart; pr
 
       {part.actions && part.actions.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, px: 1.5, py: 1, borderTop: `1px solid ${alpha(primary, 0.15)}`, flexWrap: 'wrap' }}>
-          {part.actions.map((action, i) => (
-            <Button
-              key={i}
-              size="small"
-              href={action.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              endIcon={action.variant !== 'text' ? <OpenInNewRoundedIcon sx={{ fontSize: '12px !important' }} /> : undefined}
-              sx={{
-                fontSize: '0.72rem',
-                px: 1.2,
-                py: 0.4,
-                minHeight: 28,
-                borderRadius: 3,
-                textTransform: 'none',
-                ...(action.variant === 'outlined'
-                  ? { border: `1px solid ${alpha(primary, 0.5)}`, color: primary, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(primary, 0.08) } }
-                  : action.variant === 'text'
-                  ? { color: primary, '&:hover': { bgcolor: alpha(primary, 0.08) } }
-                  : { background: grad, color: '#fff', '&:hover': { filter: 'brightness(1.1)' } }),
-              }}
-            >
-              {action.label}
-            </Button>
-          ))}
+          {part.actions.map((action, i) => {
+            const isHash = action.url === '#';
+            return (
+              <Button
+                key={i}
+                size="small"
+                {...(!isHash ? {
+                  href: action.url,
+                  target: "_blank",
+                  rel: "noopener noreferrer"
+                } : {})}
+                endIcon={action.variant !== 'text' && !isHash ? <OpenInNewRoundedIcon sx={{ fontSize: '12px !important' }} /> : undefined}
+                sx={{
+                  fontSize: '0.72rem',
+                  px: 1.2,
+                  py: 0.4,
+                  minHeight: 28,
+                  borderRadius: 3,
+                  textTransform: 'none',
+                  ...(action.variant === 'outlined'
+                    ? { border: `1px solid ${alpha(primary, 0.5)}`, color: primary, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(primary, 0.08) } }
+                    : action.variant === 'text'
+                    ? { color: primary, '&:hover': { bgcolor: alpha(primary, 0.08) } }
+                    : { background: grad, color: '#fff', '&:hover': { filter: 'brightness(1.1)' } }),
+                }}
+                onClick={isHash && onButtonClick ? (e) => { e.preventDefault(); onButtonClick(action.label) } : undefined}
+              >
+                {action.label}
+              </Button>
+            );
+          })}
         </Box>
       )}
     </Box>
@@ -371,34 +378,40 @@ function CardRenderer({ part, primary, accent, textColor }: { part: CardPart; pr
 
 // ─── Button Group Part ───────────────────────────────────────────────────────
 
-function ButtonGroupRenderer({ part, primary, accent }: { part: ButtonGroupPart; primary: string; accent: string }) {
+function ButtonGroupRenderer({ part, primary, accent, onButtonClick }: { part: ButtonGroupPart; primary: string; accent: string; onButtonClick?: (label: string) => void }) {
   const grad = gradient(primary, accent)
   return (
     <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 0.5 }}>
-      {part.buttons.map((btn, i) => (
-        <Button
-          key={i}
-          size="small"
-          href={btn.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          endIcon={<OpenInNewRoundedIcon sx={{ fontSize: '12px !important' }} />}
-          sx={{
-            fontSize: '0.72rem',
-            px: 1.5,
-            py: 0.5,
-            borderRadius: 3,
-            textTransform: 'none',
-            ...(btn.variant === 'outlined'
-              ? { border: `1px solid ${alpha(primary, 0.5)}`, color: primary, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(primary, 0.08) } }
-              : btn.variant === 'text'
-              ? { color: primary }
-              : { background: grad, color: '#fff', '&:hover': { filter: 'brightness(1.1)' } }),
-          }}
-        >
-          {btn.label}
-        </Button>
-      ))}
+      {part.buttons.map((btn, i) => {
+        const isHash = btn.url === '#';
+        return (
+          <Button
+            key={i}
+            size="small"
+            {...(!isHash ? {
+              href: btn.url,
+              target: "_blank",
+              rel: "noopener noreferrer"
+            } : {})}
+            endIcon={!isHash ? <OpenInNewRoundedIcon sx={{ fontSize: '12px !important' }} /> : undefined}
+            sx={{
+              fontSize: '0.72rem',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 3,
+              textTransform: 'none',
+              ...(btn.variant === 'outlined'
+                ? { border: `1px solid ${alpha(primary, 0.5)}`, color: primary, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(primary, 0.08) } }
+                : btn.variant === 'text'
+                ? { color: primary }
+                : { background: grad, color: '#fff', '&:hover': { filter: 'brightness(1.1)' } }),
+            }}
+            onClick={isHash && onButtonClick ? (e) => { e.preventDefault(); onButtonClick(btn.label) } : undefined}
+          >
+            {btn.label}
+          </Button>
+        );
+      })}
     </Box>
   )
 }
@@ -451,7 +464,7 @@ function AccountRenderer({ part, primaryColor, textColor }: { part: AccountPart;
 
 // ─── Main renderer ───────────────────────────────────────────────────────────
 
-export default function RichMessageRenderer({ response, parts, primaryColor, accentColor, textColor }: Props) {
+export default function RichMessageRenderer({ response, parts, primaryColor, accentColor, textColor, onButtonClick }: Props) {
   if ((!parts || parts.length === 0) && response) {
     console.log('DEBUG: RichMessageRenderer fallback response shown', { response })
 
@@ -502,9 +515,9 @@ export default function RichMessageRenderer({ response, parts, primaryColor, acc
               </Box>
             )
           case 'card':
-            return <CardRenderer key={key} part={part} primary={primaryColor} accent={accentColor} textColor={textColor} />
+            return <CardRenderer key={key} part={part} primary={primaryColor} accent={accentColor} textColor={textColor} onButtonClick={onButtonClick} />
           case 'button_group':
-            return <ButtonGroupRenderer key={key} part={part} primary={primaryColor} accent={accentColor} />
+            return <ButtonGroupRenderer key={key} part={part} primary={primaryColor} accent={accentColor} onButtonClick={onButtonClick} />
           case 'list':
             return (
               <Box

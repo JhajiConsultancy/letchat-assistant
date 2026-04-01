@@ -230,74 +230,83 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
 
   // ── Persistent WebSocket lifecycle ────────────────────────────────────────
   useEffect(() => {
-    let destroyed = false
-    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null
+
+    let destroyed = false;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let retryCount = 0;
+    const maxRetries = 3;
 
     function connect() {
-      if (destroyed) return
-      const ws = new WebSocket(getQueryWsUrl(assistantId))
-      wsRef.current = ws
+      if (destroyed) return;
+      if (retryCount >= maxRetries) {
+        // Stop trying after max retries
+        wsRef.current?.close();
+        return;
+      }
+      const ws = new WebSocket(getQueryWsUrl(assistantId));
+      wsRef.current = ws;
 
       ws.onopen = () => {
+        retryCount = 0; // Reset on successful connection
         pingRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'ping' }))
+            ws.send(JSON.stringify({ type: 'ping' }));
           }
-        }, 30_000)
-      }
+        }, 30_000);
+      };
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data as string)
+        const data = JSON.parse(event.data as string);
 
         switch (data.type) {
           case 'connected':
             // Socket is ready — input is always enabled
-            break
+            break;
 
           case 'status':
             setMessages((prev) => {
-              const list = [...prev]
-              const last = list[list.length - 1]
+              const list = [...prev];
+              const last = list[list.length - 1];
               if (last?.role === 'assistant' && last.streaming) {
                 return list.map((m, i) =>
                   i === list.length - 1 ? { ...m, status: data.content as string } : m
-                )
+                );
               }
-              return [...list, { role: 'assistant', text: '', status: data.content as string, streaming: true, timestamp: new Date() }]
-            })
-            break
+              return [...list, { role: 'assistant', text: '', status: data.content as string, streaming: true, timestamp: new Date() }];
+            });
+            break;
 
           case 'chunk':
             setMessages((prev) => {
-              const list = [...prev]
-              const last = list[list.length - 1]
+              const list = [...prev];
+              const last = list[list.length - 1];
               if (last?.role === 'assistant' && last.streaming) {
                 return list.map((m, i) =>
                   i === list.length - 1
                     ? { ...m, text: m.text + (data.content as string), status: undefined }
                     : m
-                )
+                );
               }
-              return [...list, { role: 'assistant', text: data.content as string, streaming: true, timestamp: new Date() }]
-            })
-            break
+              return [...list, { role: 'assistant', text: data.content as string, streaming: true, timestamp: new Date() }];
+            });
+            break;
 
           case 'final': {
-            const result = data as RichQueryResponse
+            const result = data as RichQueryResponse;
             if (result.session_id) {
-              sessionIdRef.current = result.session_id
-              localStorage.setItem(`ws_session_${assistantId}`, result.session_id)
+              sessionIdRef.current = result.session_id;
+              localStorage.setItem(`ws_session_${assistantId}`, result.session_id);
             }
             setMessages((prev) => {
-              const list = [...prev]
-              const last = list[list.length - 1]
+              const list = [...prev];
+              const last = list[list.length - 1];
               if (last?.role === 'assistant' && last.streaming) {
                 const updated = list.map((m, i): Message =>
                   i === list.length - 1
                     ? { ...m, streaming: false, status: undefined, sources: result.sources, parts: result.parts ?? [], response: result.response || m.response, text: result.response || m.text }
                     : m
-                )
-               return updated
+                );
+               return updated;
               }
               const appendedMessage: Message = {
                 role: 'assistant',
@@ -307,37 +316,44 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                 sources: result.sources,
                 parts: result.parts ?? [],
                 timestamp: new Date(),
-              }
-              const appended = [...list, appendedMessage]
-              return appended
-            })
-            setLoading(false)
-            break
+              };
+              const appended = [...list, appendedMessage];
+              return appended;
+            });
+            setLoading(false);
+            break;
           }
 
           case 'error':
             setMessages((prev) => [
               ...prev.filter((m) => !(m.role === 'assistant' && m.streaming)),
               { role: 'assistant', text: `⚠ ${data.detail as string}`, timestamp: new Date() },
-            ])
-            setLoading(false)
-            break
+            ]);
+            setLoading(false);
+            break;
 
           // 'pong' — no action needed
         }
-      }
+      };
 
       ws.onclose = () => {
-        if (pingRef.current) clearInterval(pingRef.current)
+        if (pingRef.current) clearInterval(pingRef.current);
         if (!destroyed) {
-          reconnectTimeout = setTimeout(connect, 3_000)
+          retryCount++;
+          if (retryCount < maxRetries) {
+            reconnectTimeout = setTimeout(connect, 3_000);
+          } else {
+            // Optionally, notify user after max retries
+            setMessages((prev) => [...prev, { role: 'assistant', text: '⚠ Connection failed after multiple attempts. Please refresh or try again later.', timestamp: new Date() }]);
+            wsRef.current?.close();
+          }
         }
-      }
+      };
 
-      ws.onerror = () => ws.close()
+      ws.onerror = () => ws.close();
     }
 
-    connect()
+    connect();
 
     return () => {
       destroyed = true
@@ -769,12 +785,16 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
 
                   {msg.role === 'assistant'  && !msg.streaming ? (
                     <>
-                     <RichMessageRenderer
+                      <RichMessageRenderer
                         response={msg.response || msg.text || ''}
                         parts={msg.parts ?? []}
                         primaryColor={config.theme.primary_color}
                         accentColor={config.theme.accent_color}
                         textColor={config.theme.mode === 'dark' ? '#fff' : config.theme.text_color}
+                        onButtonClick={(label) => {
+                          // Send the button label as a user message
+                          sendMessage(label)
+                        }}
                       />
                     </>
                   ) : (
