@@ -1,8 +1,8 @@
+import { useEffect, useRef, useState } from 'react';
 import {
   ChevronRight,
   Bot,
   Globe,
-  Shield,
   Zap,
   Store,
   Users,
@@ -17,7 +17,65 @@ import {
   Type,
   Image,
   Layers,
+  Menu,
+  X,
 } from 'lucide-react';
+
+/* ─── Inline keyframe styles (no extra CSS file needed) ─── */
+const GLOBAL_STYLES = `
+  @keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(40px,-60px) scale(1.1); }
+    66%      { transform: translate(-30px,40px) scale(0.95); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(-50px,70px) scale(1.08); }
+    66%      { transform: translate(60px,-40px) scale(0.92); }
+  }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(30px,50px) scale(1.05); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(28px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes gradShift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @keyframes scanline {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  @keyframes glowPulse {
+    0%,100% { box-shadow: 0 0 20px 2px rgba(142,116,228,0.35); }
+    50%      { box-shadow: 0 0 40px 8px rgba(142,116,228,0.65); }
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+  }
+  @keyframes typewriter {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0% 0 0); }
+  }
+  @keyframes ticker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-fadeUp   { animation: fadeUp .7s ease both; }
+  .anim-delay-100   { animation-delay: .1s; }
+  .anim-delay-200   { animation-delay: .2s; }
+  .anim-delay-300   { animation-delay: .3s; }
+  .anim-delay-400   { animation-delay: .4s; }
+  .card-glow:hover  { box-shadow: 0 0 0 1px rgba(142,116,228,0.5), 0 8px 40px rgba(142,116,228,0.18); }
+  .btn-glow { animation: glowPulse 2.5s ease-in-out infinite; }
+  .ticker-wrap { overflow:hidden; }
+  .ticker-track { display:flex; animation: ticker 22s linear infinite; white-space:nowrap; }
+`;
 
 const USE_CASES = [
   {
