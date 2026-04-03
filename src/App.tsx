@@ -36,13 +36,9 @@ export default function App() {
     try { return getAssistantId() } catch { return null }
   })
 
-  if (assistantId === 'landing') {
-    return <LandingPage />
-  }
-
   useEffect(() => {
-    if (!assistantId) {
-      setError('Missing required URL parameter: assistantId')
+    if (assistantId === 'landing' || !assistantId) {
+      if (!assistantId) setError('Missing required URL parameter: assistantId')
       return
     }
     loadConfig(assistantId)
@@ -52,6 +48,10 @@ export default function App() {
         setError(msg)
       })
   }, [assistantId])
+
+  if (assistantId === 'landing') {
+    return <LandingPage />
+  }
 
   if (error) {
     return (

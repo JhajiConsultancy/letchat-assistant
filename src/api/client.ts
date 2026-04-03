@@ -1,14 +1,13 @@
 import axios from 'axios'
 import { applySecurityInterceptor } from './securityInterceptor'
 
+const API_BASE_URL = 'https://api.letchat.in'
+
 // ---------------------------------------------------------------------------
 // Axios instance for the customer-facing chat widget.
-//
-// Dev:  Vite proxies /api → http://127.0.0.1:8000  (see vite.config.ts)
-// Prod: set VITE_API_BASE_URL to your backend origin.
 // ---------------------------------------------------------------------------
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
+  baseURL: API_BASE_URL,
   timeout: 30_000,
   withCredentials: true, // Send cookies with cross-domain requests
 })
@@ -89,13 +88,6 @@ export async function queryRag(slugName: string, payload: QueryRequest): Promise
 
 /** WebSocket URL for the streaming RAG query endpoint */
 export function getQueryWsUrl(slugName: string): string {
-  const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined
-  let wsOrigin: string
-  if (apiBase) {
-    wsOrigin = apiBase.replace(/^http/, 'ws').replace(/\/+$/, '')
-  } else {
-    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    wsOrigin = `${proto}//${window.location.host}`
-  }
+  const wsOrigin = API_BASE_URL.replace(/^http/, 'ws').replace(/\/+$/, '')
   return `${wsOrigin}/api/ws/chat-assistants/by-slug/${slugName}/query`
 }
