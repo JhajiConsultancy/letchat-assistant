@@ -97,5 +97,5 @@ export function getQueryWsUrl(slugName: string): string {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     wsOrigin = `${proto}//${window.location.host}`
   }
-  return `${wsOrigin}/api/ws/chat-assistants/by-slug/${slugName}/query`
+  return `wss://api.letchat.in/api/ws/chat-assistants/by-slug/${slugName}/query`
 }
