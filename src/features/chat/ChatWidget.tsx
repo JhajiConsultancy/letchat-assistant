@@ -29,6 +29,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined'
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded'
 import { ChatWidgetConfig } from './types'
 import { getQueryWsUrl, listDocuments, getDocument, DocumentSummary, DocumentDetail } from '../../api/client'
 import { readFileAsDataUrl } from '../../api/widgetConfig'
@@ -101,6 +102,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const [selectedLang, setSelectedLang] = useState(config.default_language ?? 'english')
   const [isListening, setIsListening] = useState(false)
   const [humanMode, setHumanMode] = useState(false)
+  const [globalError, setGlobalError] = useState<{ message: string; terminated: boolean } | null>(null)
   // Document summary state
   const [docSummaries, setDocSummaries] = useState<DocumentSummary[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
@@ -118,6 +120,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const sessionIdRef = useRef<string | null>(
     localStorage.getItem(`ws_session_${assistantId}`)
   )
+  const terminatedRef = useRef(false)
 
   function startListening() {
     const SpeechRecognitionAPI =
@@ -324,13 +327,17 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
             break;
           }
 
-          case 'error':
-            setMessages((prev) => [
-              ...prev.filter((m) => !(m.role === 'assistant' && m.streaming)),
-              { role: 'assistant', text: `⚠ ${data.detail as string}`, timestamp: new Date() },
-            ]);
-            setLoading(false);
-            break;
+          case 'error': {
+            const isTerminatedError = !!data.connection_terminated
+            setGlobalError({ message: (data.detail as string) ?? 'An unexpected error occurred.', terminated: isTerminatedError })
+            setMessages((prev) => prev.filter((m) => !(m.role === 'assistant' && m.streaming)))
+            setLoading(false)
+            if (isTerminatedError) {
+              terminatedRef.current = true
+              ws.close()
+            }
+            break
+          }
 
           // 'pong' — no action needed
         }
@@ -338,14 +345,12 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
 
       ws.onclose = () => {
         if (pingRef.current) clearInterval(pingRef.current);
-        if (!destroyed) {
+        if (!destroyed && !terminatedRef.current) {
           retryCount++;
           if (retryCount < maxRetries) {
             reconnectTimeout = setTimeout(connect, 3_000);
           } else {
-            // Optionally, notify user after max retries
-            setMessages((prev) => [...prev, { role: 'assistant', text: '⚠ Connection failed after multiple attempts. Please refresh or try again later.', timestamp: new Date() }]);
-            wsRef.current?.close();
+            setGlobalError({ message: 'Connection failed after multiple attempts. Please refresh the page to try again.', terminated: false });
           }
         }
       };
@@ -364,7 +369,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   }, [assistantId])
 
   function sendMessage(text: string) {
-    if ((!text.trim() && !attachedImage) || loading) return
+    if ((!text.trim() && !attachedImage) || loading || isTerminated) return
     const userMsg: Message = { role: 'user', text: text.trim(), image: attachedImage ?? undefined, timestamp: new Date() }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
@@ -426,6 +431,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const showDocSummaries = config.show_doc_summaries ?? false
 
   const assistantStreaming = messages.some((m) => m.role === 'assistant' && m.streaming)
+  const isTerminated = globalError?.terminated ?? false
 
   function formatTime(date: Date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -628,6 +634,65 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                   '&:hover': { bgcolor: alpha('#2e7d32', 0.25) },
                 }}
               />
+            </Box>
+          )}
+
+          {/* ── Global Error Banner ── */}
+          {globalError && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1,
+                px: 2,
+                py: 1,
+                flexShrink: 0,
+                bgcolor: globalError.terminated ? alpha('#c62828', 0.08) : alpha('#e65100', 0.08),
+                borderBottom: `1px solid ${globalError.terminated ? alpha('#c62828', 0.28) : alpha('#e65100', 0.28)}`,
+              }}
+            >
+              <ErrorOutlineRoundedIcon
+                sx={{
+                  fontSize: 17,
+                  mt: '1px',
+                  color: globalError.terminated ? '#c62828' : '#e65100',
+                  flexShrink: 0,
+                }}
+              />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    lineHeight: 1.4,
+                    color: globalError.terminated ? '#c62828' : '#e65100',
+                  }}
+                >
+                  {globalError.terminated ? 'Assistant Unavailable' : 'Connection Error'}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.70rem',
+                    lineHeight: 1.4,
+                    color: globalError.terminated
+                      ? alpha('#c62828', 0.85)
+                      : alpha('#e65100', 0.85),
+                    mt: 0.15,
+                  }}
+                >
+                  {globalError.message}
+                  {globalError.terminated && ' All interactions have been disabled.'}
+                </Typography>
+              </Box>
+              {!globalError.terminated && (
+                <IconButton
+                  size="small"
+                  onClick={() => setGlobalError(null)}
+                  sx={{ p: 0.3, flexShrink: 0, color: '#e65100', mt: '-2px' }}
+                >
+                  <CloseRoundedIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              )}
             </Box>
           )}
 
@@ -966,7 +1031,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                     label={q}
                     size="small"
                     onClick={() => void sendMessage(q)}
-                    disabled={loading}
+                    disabled={loading || isTerminated}
                     sx={pinnedSx}
                   />
                 )
@@ -975,6 +1040,29 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
           )}
 
           {/* ── Input bar ── */}
+          {isTerminated ? (
+            <Box
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: 1.5,
+                flexShrink: 0,
+                borderTop: `1px solid ${alpha('#c62828', 0.2)}`,
+                bgcolor: config.theme.mode === 'dark' ? alpha('#1a0000', 0.45) : alpha('#fff5f5', 0.9),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+              }}
+            >
+              <ErrorOutlineRoundedIcon sx={{ fontSize: 15, color: alpha('#c62828', 0.55) }} />
+              <Typography
+                variant="caption"
+                sx={{ color: alpha('#c62828', 0.7), fontSize: '0.72rem', fontStyle: 'italic' }}
+              >
+                This assistant is unavailable. No further messages can be sent.
+              </Typography>
+            </Box>
+          ) : (
           <Box
             sx={{
               px: { xs: 2, sm: 3, md: 4 },
@@ -1046,7 +1134,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                   <Tooltip title="Emoji">
                     <IconButton
                       size="small"
-                      disabled={loading}
+                      disabled={loading || isTerminated}
                       onClick={(e) => setEmojiAnchor(e.currentTarget)}
                       sx={{ color: 'text.secondary', p: 0.75, '&:hover': { color: config.theme.primary_color } }}
                     >
@@ -1067,7 +1155,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                   <Tooltip title="Attach image">
                     <IconButton
                       size="small"
-                      disabled={loading}
+                      disabled={loading || isTerminated}
                       onClick={() => imageInputRef.current?.click()}
                       sx={{ color: 'text.secondary', p: 0.75, '&:hover': { color: config.theme.primary_color } }}
                     >
@@ -1116,7 +1204,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                       onChange={(e) => setSelectedLang(e.target.value)}
                       variant="standard"
                       disableUnderline
-                      disabled={loading}
+                      disabled={loading || isTerminated}
                       renderValue={() => (
                         <LanguageRoundedIcon sx={{ fontSize: 20, color: 'text.secondary', display: 'flex' }} />
                       )}
@@ -1140,7 +1228,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                 <Tooltip title="Send">
                   <IconButton
                     onClick={() => void sendMessage(input)}
-                    disabled={loading}
+                    disabled={loading || isTerminated}
                     sx={{
                       background: config.send_button_style === 'gradient' ? gradient : config.theme.primary_color,
                       color: '#fff',
@@ -1183,6 +1271,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
               ) : null}
             </Box>
           </Box>
+          )}
           {/* ── Navigation bar (bottom) ── */}
           {config.nav_enabled && config.nav_position === 'bottom' && (
             <Box

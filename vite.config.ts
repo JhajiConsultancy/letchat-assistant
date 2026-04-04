@@ -17,7 +17,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-       // ws: true, // Proxy WebSocket connections for real-time features
+        ws: true, // Proxy WebSocket connections for real-time features
       },
     },
   },
