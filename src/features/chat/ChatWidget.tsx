@@ -1000,20 +1000,19 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
 
           {/* ── Pinned questions ── */}
           {config.pinned_questions.length > 0 && (
+            <Box sx={{ position: 'relative', flexShrink: 0, maxWidth: 860, width: '100%', mx: 'auto', alignSelf: 'center' }}>
             <Box
               sx={{
                 px: { xs: 2, sm: 3, md: 4 },
-                pb: 1,
+                pt: 1.5,
+                pb: 1.5,
                 display: 'flex',
                 gap: 0.75,
                 overflowX: 'auto',
                 flexShrink: 0,
                 scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': { display: 'none' },
-                maxWidth: 860,
                 width: '100%',
-                mx: 'auto',
-                alignSelf: 'center',
                 boxSizing: 'border-box',
               }}
             >
@@ -1021,10 +1020,10 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                 const ps = config.pinned_style ?? 'chip'
                 const pinnedSx =
                   ps === 'pill'
-                    ? { flexShrink: 0, bgcolor: 'transparent', border: `1.5px solid ${alpha(config.theme.primary_color, 0.7)}`, color: config.theme.primary_color, fontSize: '0.75rem', borderRadius: '20px', cursor: 'pointer', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.1) } }
+                    ? { flexShrink: 0, bgcolor: alpha(config.theme.primary_color, 0.07), border: `1.5px solid ${alpha(config.theme.primary_color, 0.55)}`, color: config.theme.primary_color, fontSize: '0.75rem', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.18s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.07)', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.14), borderColor: config.theme.primary_color, boxShadow: '0 2px 6px rgba(0,0,0,0.12)', transform: 'translateY(-1px)' }, '&:active': { transform: 'scale(0.97)', boxShadow: 'none' } }
                     : ps === 'button'
-                    ? { flexShrink: 0, background: gradient, border: 'none', color: '#fff', fontSize: '0.75rem', borderRadius: '8px', cursor: 'pointer', '&:hover': { filter: 'brightness(1.12)' } }
-                    : { flexShrink: 0, bgcolor: alpha(config.theme.primary_color, 0.13), border: `1px solid ${alpha(config.theme.primary_color, 0.35)}`, color: config.theme.text_color, fontSize: '0.75rem', cursor: 'pointer', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.22) } }
+                    ? { flexShrink: 0, background: gradient, border: 'none', color: '#fff', fontSize: '0.75rem', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.18s ease', '&:hover': { filter: 'brightness(1.12)', transform: 'translateY(-1px)', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }, '&:active': { transform: 'scale(0.97)' } }
+                    : { flexShrink: 0, bgcolor: alpha(config.theme.primary_color, 0.13), border: `1px solid ${alpha(config.theme.primary_color, 0.35)}`, color: config.theme.text_color, fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.18s ease', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.22), borderColor: alpha(config.theme.primary_color, 0.6), transform: 'translateY(-1px)', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }, '&:active': { transform: 'scale(0.97)' } }
                 return (
                   <Chip
                     key={q}
@@ -1036,6 +1035,17 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                   />
                 )
               })}
+            </Box>
+            {/* Fade-out hint for overflowing chips */}
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: 40,
+              background: `linear-gradient(to right, transparent, ${config.theme.mode === 'dark' ? alpha('#0D0D17', 0.9) : alpha('#F5F5F5', 0.95)})`,
+              pointerEvents: 'none',
+            }} />
             </Box>
           )}
 
@@ -1123,8 +1133,8 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                   borderRadius: `${config.input_radius ?? 22}px`,
                   bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.07) : alpha('#000', 0.05),
                   border: `1px solid ${alpha(config.theme.primary_color, 0.2)}`,
-                  px: 0.75,
-                  py: 0.5,
+                  px: 1.25,
+                  py: 0.625,
                   transition: 'border-color 0.2s',
                   '&:focus-within': { borderColor: alpha(config.theme.primary_color, 0.6) },
                 }}
@@ -1136,7 +1146,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                       size="small"
                       disabled={loading || isTerminated}
                       onClick={(e) => setEmojiAnchor(e.currentTarget)}
-                      sx={{ color: 'text.secondary', p: 0.75, '&:hover': { color: config.theme.primary_color } }}
+                      sx={{ color: 'text.secondary', p: 1, '&:hover': { color: config.theme.primary_color } }}
                     >
                       <EmojiEmotionsRoundedIcon sx={{ fontSize: 20 }} />
                     </IconButton>
@@ -1157,7 +1167,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                       size="small"
                       disabled={loading || isTerminated}
                       onClick={() => imageInputRef.current?.click()}
-                      sx={{ color: 'text.secondary', p: 0.75, '&:hover': { color: config.theme.primary_color } }}
+                      sx={{ color: 'text.secondary', p: 1, '&:hover': { color: config.theme.primary_color } }}
                     >
                       <AttachFileRoundedIcon sx={{ fontSize: 20 }} />
                     </IconButton>
@@ -1189,7 +1199,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                     py: 0.85,
                     px: 0.5,
                     fontFamily: '"Google Sans", "Roboto", sans-serif',
-                    '&::placeholder': { color: alpha(config.theme.text_color, 0.4) },
+                    '&::placeholder': { color: alpha(config.theme.text_color, 0.55) },
                     overflowY: 'hidden',
                     maxHeight: 120,
                     overflowWrap: 'break-word',
@@ -1198,7 +1208,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
 
                 {/* Language selector */}
                 {showLanguage && (
-                  <Tooltip title="Response language">
+                  <Tooltip title="Response language — tap to switch">
                     <Select
                       value={selectedLang}
                       onChange={(e) => setSelectedLang(e.target.value)}
@@ -1209,7 +1219,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                         <LanguageRoundedIcon sx={{ fontSize: 20, color: 'text.secondary', display: 'flex' }} />
                       )}
                       sx={{
-                        '& .MuiSelect-select': { p: 0.75, display: 'flex', alignItems: 'center' },
+                        '& .MuiSelect-select': { p: 1, display: 'flex', alignItems: 'center' },
                         '& .MuiSelect-icon': { display: 'none' },
                       }}
                     >
@@ -1249,8 +1259,9 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                     sx={{
                       background: isListening
                         ? `linear-gradient(135deg, ${config.theme.primary_color} 0%, ${config.theme.accent_color} 100%)`
-                        : config.theme.mode === 'dark' ? alpha('#fff', 0.07) : alpha('#000', 0.06),
+                        : config.theme.mode === 'dark' ? alpha('#fff', 0.07) : alpha('#000', 0.05),
                       color: isListening ? '#fff' : 'text.secondary',
+                      border: isListening ? 'none' : `1px solid ${alpha(config.theme.primary_color, 0.2)}`,
                       width: 44,
                       height: 44,
                       flexShrink: 0,
