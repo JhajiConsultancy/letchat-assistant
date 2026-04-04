@@ -254,6 +254,15 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
+            {/* Live demo assistant iframe */}
+            <div className="mt-8">
+              <iframe
+                title="LetChat Demo Assistant"
+                src="https://neeraj.letchat.in/?embed=1"
+                style={{ width: '100%', minHeight: 480, border: 'none', borderRadius: 16, background: 'white' }}
+                allow="clipboard-write; microphone;"
+              />
+            </div>
             {/* badge */}
             <div className="absolute -top-3 -right-3 bg-[#8E74E4] text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
               Live 24 × 7

@@ -15,9 +15,9 @@ export default defineConfig({
     allowedHosts: true, // Allow any host (e.g., neeraj.localhost)
     proxy: {
       '/api': {
-        target: 'https://api.letchat.in',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        ws: true, // Proxy WebSocket connections for real-time features
+       // ws: true, // Proxy WebSocket connections for real-time features
       },
     },
   },
