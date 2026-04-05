@@ -147,6 +147,89 @@ const TESTIMONIALS = [
   },
 ];
 
+const DEMO_SLIDES = [
+  { src: 'https://iskconnasik.letchat.in/?embed=1', label: 'ISKCON Nashik' },
+  { src: 'https://neeraj.letchat.in/?embed=1', label: 'Owner Assistant' },
+
+];
+
+function DemoCarousel() {
+  const [active, setActive] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  const prev = () => setActive((a) => (a - 1 + DEMO_SLIDES.length) % DEMO_SLIDES.length);
+  const next = () => setActive((a) => (a + 1) % DEMO_SLIDES.length);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (delta < -40) next();
+    else if (delta > 40) prev();
+    touchStartX.current = null;
+  };
+
+  return (
+    <div className="mt-8 select-none">
+      {/* slides */}
+      <div
+        className="relative overflow-hidden rounded-2xl"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(-${active * 100}%)` }}
+        >
+          {DEMO_SLIDES.map((slide, i) => (
+            <div key={i} className="min-w-full">
+              <iframe
+                title={slide.label}
+                src={slide.src}
+                style={{ width: '100%', minHeight: 560, border: 'none', borderRadius: 16, background: 'white', display: 'block' }}
+                allow="clipboard-write; microphone;"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* prev / next arrows */}
+        <button
+          onClick={prev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-[#8E74E4]/80 flex items-center justify-center text-white transition-colors z-10"
+          aria-label="Previous"
+        >
+          <ChevronRight size={16} className="rotate-180" />
+        </button>
+        <button
+          onClick={next}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-[#8E74E4]/80 flex items-center justify-center text-white transition-colors z-10"
+          aria-label="Next"
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
+      {/* dots + label */}
+      <div className="flex flex-col items-center gap-2 mt-3">
+        <div className="flex gap-2">
+          {DEMO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`w-2 h-2 rounded-full transition-all ${i === active ? 'bg-[#8E74E4] w-5' : 'bg-white/20'}`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+        <span className="text-xs text-gray-400">{DEMO_SLIDES[active].label}</span>
+      </div>
+    </div>
+  );
+}
+
 /**
  * LANDING PAGE COMPONENT
  */
@@ -254,15 +337,8 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
-            {/* Live demo assistant iframe */}
-            <div className="mt-8">
-              <iframe
-                title="LetChat Demo Assistant"
-                src="https://neeraj.letchat.in/?embed=1"
-                style={{ width: '100%', minHeight: 480, border: 'none', borderRadius: 16, background: 'white' }}
-                allow="clipboard-write; microphone;"
-              />
-            </div>
+            {/* Live demo assistant carousel */}
+            <DemoCarousel />
             {/* badge */}
             <div className="absolute -top-3 -right-3 bg-[#8E74E4] text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
               Live 24 × 7
