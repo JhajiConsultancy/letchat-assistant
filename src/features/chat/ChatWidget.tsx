@@ -114,7 +114,7 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [summaryCopied, setSummaryCopied] = useState(false)
   const [drawerTab, setDrawerTab] = useState(0)
-  const [docSummariesOpen, setDocSummariesOpen] = useState(true)
+  const [docSummariesOpen, setDocSummariesOpen] = useState(false)
   const recognitionRef = useRef<any | null>(null)
   // Persistent WebSocket refs
   const wsRef = useRef<WebSocket | null>(null)
