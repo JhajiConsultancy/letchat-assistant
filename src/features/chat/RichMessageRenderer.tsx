@@ -340,7 +340,7 @@ function CardRenderer({ part, primary, accent, textColor, onButtonClick }: { par
       {part.actions && part.actions.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, px: 1.5, py: 1, borderTop: `1px solid ${alpha(primary, 0.15)}`, flexWrap: 'wrap' }}>
           {part.actions.map((action, i) => {
-            const isHash = action.url === '#';
+            const isHash = !action.url || action.url === '#' || action.url.includes('#');
             return (
               <Button
                 key={i}
@@ -383,7 +383,7 @@ function ButtonGroupRenderer({ part, primary, accent, onButtonClick }: { part: B
   return (
     <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 0.5 }}>
       {part.buttons.map((btn, i) => {
-        const isHash = btn.url === '#';
+        const isHash = !btn.url || btn.url === '#' || btn.url.includes('#');
         return (
           <Button
             key={i}

@@ -57,6 +57,10 @@ interface ChatWidgetProps {
 const LANGUAGES = [
   { label: 'English',              value: 'english' },
   { label: 'Hindi',                value: 'hindi' },
+  { label: 'Marathi',              value: 'marathi' },
+  { label: 'Bhojpuri',             value: 'bhojpuri' },
+  { label: 'Tamil',                value: 'tamil' },
+  { label: 'Telugu',               value: 'telugu' },
   { label: 'Spanish',              value: 'spanish' },
   { label: 'French',               value: 'french' },
   { label: 'German',               value: 'german' },
@@ -64,8 +68,6 @@ const LANGUAGES = [
   { label: 'Portuguese',           value: 'portuguese' },
   { label: 'Chinese (Simplified)', value: 'chinese (simplified)' },
   { label: 'Japanese',             value: 'japanese' },
-  { label: 'Tamil',                value: 'tamil' },
-  { label: 'Telugu',               value: 'telugu' },
 ]
 
 export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
