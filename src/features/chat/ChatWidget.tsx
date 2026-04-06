@@ -1283,6 +1283,16 @@ export default function ChatWidget({ config, assistantId }: ChatWidgetProps) {
                 </Tooltip>
               ) : null}
             </Box>
+
+            {/* Powered by Letchat */}
+            <Box sx={{ textAlign: 'center', mt: 0.75, userSelect: 'none', pointerEvents: 'none' }}>
+              <Typography sx={{ fontSize: '0.62rem', color: alpha(config.theme.text_color, 0.3), letterSpacing: '0.03em' }}>
+                Powered by{' '}
+                <Box component="span" sx={{ color: alpha(config.theme.primary_color, 0.5), fontWeight: 700 }}>
+                  Letchat
+                </Box>
+              </Typography>
+            </Box>
           </Box>
           )}
           {/* ── Navigation bar (bottom) ── */}
