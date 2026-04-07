@@ -1492,9 +1492,16 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
                               </IconButton>
                             </Tooltip>
                           </Box>
-                          <Typography sx={{ fontSize: '0.74rem', color: alpha(config.theme.text_color, 0.85), lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>
-                            {summaryDetail.description || 'No description available.'}
-                          </Typography>
+                          {summaryDetail.description
+                            ? <MarkdownRenderer
+                                content={summaryDetail.description}
+                                primaryColor={config.theme.primary_color}
+                                accentColor={config.theme.accent_color}
+                                textColor={alpha(config.theme.text_color, 0.85)}
+                                fontSize="0.74rem"
+                              />
+                            : <Typography sx={{ fontSize: '0.74rem', color: alpha(config.theme.text_color, 0.45), lineHeight: 1.75 }}>No description available.</Typography>
+                          }
                         </Box>
                       </Box>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.25, borderRadius: 2, bgcolor: alpha(config.theme.primary_color, 0.04), border: `1px solid ${alpha(config.theme.primary_color, 0.12)}` }}>
