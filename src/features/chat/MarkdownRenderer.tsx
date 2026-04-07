@@ -283,11 +283,14 @@ export default function MarkdownRenderer({
     ),
 
     // ── Inline code & code blocks ─────────────────────────────────────────────
-    code: ({ inline, className, children, ...props }) => (
-      <CodeBlock inline={inline} className={className} primaryColor={primaryColor} {...props}>
-        {children}
-      </CodeBlock>
-    ),
+    code: ({ className, children, ...props }) => {
+      const isInline = !className?.startsWith('language-') && !String(children).includes('\n')
+      return (
+        <CodeBlock inline={isInline} className={className} primaryColor={primaryColor} {...props}>
+          {children}
+        </CodeBlock>
+      )
+    },
 
     // ── Horizontal rule ──────────────────────────────────────────────────────
     hr: () => (
