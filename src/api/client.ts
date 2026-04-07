@@ -98,6 +98,6 @@ export function getQueryWsUrl(slugName: string): string {
     wsOrigin = `${proto}//${window.location.host}`
   }
   if (wsOrigin.includes('localhost') || wsOrigin.includes('127.0.0.1'))
-    return `${wsOrigin}/api/ws/chat-assistants/by-slug/${slugName}/query`
+    return `${wsOrigin}/api/ws/v2/chat-assistants/by-slug/${slugName}/query`
   else return `wss://api.letchat.in/api/ws/chat-assistants/by-slug/${slugName}/query`
 }

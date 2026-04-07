@@ -15,9 +15,13 @@
     "@mui/icons-material": "^6.4.6",
     "@mui/material": "^6.4.6",
     "axios": "^1.7.9",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^1.7.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.8",
