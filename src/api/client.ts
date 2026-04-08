@@ -81,6 +81,60 @@ export async function getDocument(
   return data
 }
 
+// ---------------------------------------------------------------------------
+// Catalogue Store types
+// ---------------------------------------------------------------------------
+export interface CatalogueItem {
+  item_id: string
+  name: string
+  description: string
+  category: string
+  category_label: string
+  file_name: string
+  file_type: string
+  file_size_bytes: number
+  tags: string[]
+  meta: Record<string, unknown>
+  s3_key: string
+  status: string
+}
+
+export interface CatalogueItemWithDownload extends CatalogueItem {
+  download_url: string
+}
+
+export interface CatalogueListResponse {
+  chat_assistant_id: string
+  total: number
+  page: number
+  per_page: number
+  pages: number
+  items: CatalogueItem[]
+}
+
+/** GET /catalogue/{assistant_id}/items — list catalogue items */
+export async function listCatalogueItems(
+  assistantId: string,
+  params?: { category?: string; search?: string; page?: number; per_page?: number },
+): Promise<CatalogueListResponse> {
+  const { data } = await apiClient.get<CatalogueListResponse>(
+    `/api/catalogue/${encodeURIComponent(assistantId)}/items`,
+    { params },
+  )
+  return data
+}
+
+/** GET /catalogue/{assistant_id}/items/{item_id} — get item with download URL */
+export async function getCatalogueItemDownloadUrl(
+  assistantId: string,
+  itemId: string,
+): Promise<CatalogueItemWithDownload> {
+  const { data } = await apiClient.get<CatalogueItemWithDownload>(
+    `/api/catalogue/${encodeURIComponent(assistantId)}/items/${encodeURIComponent(itemId)}`,
+  )
+  return data
+}
+
 /** POST /api/query — run a RAG query (HTTP fallback) */
 export async function queryRag(slugName: string, payload: QueryRequest): Promise<QueryResponse> {
   const { data } = await apiClient.post<QueryResponse>(`/api/chat-assistants/by-slug/${slugName}/query`, payload)

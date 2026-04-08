@@ -76,6 +76,11 @@ export interface ChatWidgetConfig {
   nav_items: NavItem[]
   nav_position: 'top' | 'bottom'
 
+  // Catalogue
+  show_catalogue?: boolean
+  catalogue_button_label?: string
+  catalogue_drawer_title?: string
+
   // Lifecycle
   is_active: boolean
   created_at?: string
@@ -131,6 +136,9 @@ export const DEFAULT_CONFIG: ChatWidgetConfig = {
   nav_enabled: false,
   nav_items: [],
   nav_position: 'top',
+  show_catalogue: true,
+  catalogue_button_label: 'Catalogues',
+  catalogue_drawer_title: 'Resource Library',
   is_active: true,
   show_doc_summaries: false,
 }

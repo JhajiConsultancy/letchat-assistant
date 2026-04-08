@@ -30,12 +30,14 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded'
+import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded'
 import { ChatWidgetConfig } from './types'
 import { getQueryWsUrl, listDocuments, getDocument, DocumentSummary, DocumentDetail } from '../../api/client'
 import { readFileAsDataUrl } from '../../api/widgetConfig'
 import { RichQueryResponse } from './richContent'
 import EmojiPicker from './EmojiPicker'
 import MarkdownRenderer from './MarkdownRenderer'
+import CatalogueDrawer from './CatalogueDrawer'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -105,6 +107,7 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
   const [isListening, setIsListening] = useState(false)
   const [humanMode, setHumanMode] = useState(false)
   const [globalError, setGlobalError] = useState<{ message: string; terminated: boolean } | null>(null)
+  const [catalogueOpen, setCatalogueOpen] = useState(false)
   // Document summary state
   const [docSummaries, setDocSummaries] = useState<DocumentSummary[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
@@ -524,37 +527,67 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
               </Typography>
             </Box>
 
-            {showHumanHandoff && (
-              <Tooltip title={humanMode ? 'Return to AI' : 'Talk to a human agent'}>
-                <IconButton
-                  onClick={() => {
-                    if (!humanMode) {
-                      setHumanMode(true)
-                      setMessages((prev) => [
-                        ...prev,
-                        {
-                          role: 'assistant',
-                          text: "✋ You've been connected to a human agent. Please hold on while we connect you — a team member will respond shortly.",
-                          timestamp: new Date(),
-                        },
-                      ])
-                    } else {
-                      setHumanMode(false)
-                    }
-                  }}
-                  sx={{
-                    ml: 'auto',
-                    bgcolor: humanMode ? alpha('#fff', 0.3) : alpha('#fff', 0.15),
-                    color: '#fff',
-                    '&:hover': { bgcolor: alpha('#fff', 0.35) },
-                  }}
-                >
-                  {humanMode
-                    ? <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
-                    : <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />}
-                </IconButton>
-              </Tooltip>
-            )}
+            {/* Header action buttons — pushed to the right */}
+            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              {/* Catalogue button */}
+              {(config.show_catalogue ?? false) && (
+                <Tooltip title={config.catalogue_button_label || 'Catalogues'}>
+                  <Box
+                    onClick={() => setCatalogueOpen(true)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.6,
+                      px: 1.25,
+                      py: 0.55,
+                      borderRadius: 2,
+                      bgcolor: alpha('#fff', 0.15),
+                      color: '#fff',
+                      cursor: 'pointer',
+                      transition: 'background 0.18s ease',
+                      '&:hover': { bgcolor: alpha('#fff', 0.28) },
+                    }}
+                  >
+                    <MenuBookRoundedIcon sx={{ fontSize: 17 }} />
+                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1 }}>
+                      {config.catalogue_button_label || 'Catalogues'}
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+
+              {/* Human handoff */}
+              {showHumanHandoff && (
+                <Tooltip title={humanMode ? 'Return to AI' : 'Talk to a human agent'}>
+                  <IconButton
+                    onClick={() => {
+                      if (!humanMode) {
+                        setHumanMode(true)
+                        setMessages((prev) => [
+                          ...prev,
+                          {
+                            role: 'assistant',
+                            text: "✋ You've been connected to a human agent. Please hold on while we connect you — a team member will respond shortly.",
+                            timestamp: new Date(),
+                          },
+                        ])
+                      } else {
+                        setHumanMode(false)
+                      }
+                    }}
+                    sx={{
+                      bgcolor: humanMode ? alpha('#fff', 0.3) : alpha('#fff', 0.15),
+                      color: '#fff',
+                      '&:hover': { bgcolor: alpha('#fff', 0.35) },
+                    }}
+                  >
+                    {humanMode
+                      ? <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
+                      : <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />}
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
           </Box>
 
           {/* ── Navigation bar (top) ── */}
@@ -1381,6 +1414,14 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
               </Button>
             </Box>
           )}
+
+          {/* ── Catalogue Drawer ── */}
+          <CatalogueDrawer
+            open={catalogueOpen}
+            onClose={() => setCatalogueOpen(false)}
+            assistantId={assistantId}
+            config={config}
+          />
 
           {/* ── Document Summary Drawer ── */}
           {/* Backdrop */}
