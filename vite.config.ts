@@ -7,7 +7,12 @@ import path from 'path'
 //
 // Dev: proxy /api → backend at http://127.0.0.1:8000
 // Prod: set VITE_API_BASE_URL in your deployment environment
+//
+// SDK build:  npm run build:sdk   → dist-sdk/widget.iife.js
 // ---------------------------------------------------------------------------
+
+const isSdkBuild = process.env.BUILD_TARGET === 'sdk'
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -27,4 +32,23 @@ export default defineConfig({
       },
     },
   },
+  // SDK library build (BUILD_TARGET=sdk)
+  ...(isSdkBuild && {
+    build: {
+      outDir: 'dist-sdk',
+      lib: {
+        entry: path.resolve(__dirname, 'src/sdk.tsx'),
+        name: 'LetchatWidget',
+        fileName: () => 'widget.js',
+        formats: ['iife'],
+      },
+      rollupOptions: {
+        // Bundle everything — consumers just drop a <script> tag
+        external: [],
+        output: {
+          inlineDynamicImports: true,
+        },
+      },
+    },
+  }),
 })

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Letchat SDK — Embed Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 40px; background: #f5f5f5; }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    pre { background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 0.9rem; line-height: 1.6; }
+    .tag { color: #89b4fa; }
+    .attr { color: #cba6f7; }
+    .val  { color: #a6e3a1; }
+    .comment { color: #6c7086; font-style: italic; }
+    section { max-width: 760px; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Letchat Widget SDK — One-Line Embed</h1>
+
+  <!-- ═══════════════════════════════════════════════════════
+       OPTION 1 — Floating widget (default)
+       Drop this single line anywhere in your HTML.
+       The widget appears as a fixed overlay on the right side.
+  ═══════════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>Option 1 · Floating overlay (one line)</h2>
+    <pre><span class="comment">&lt;!-- Paste this single tag before &lt;/body&gt; --&gt;</span>
+<span class="tag">&lt;script</span>
+  <span class="attr">src</span>=<span class="val">"https://cdn.letchat.in/widget.js"</span>
+  <span class="attr">data-assistant-id</span>=<span class="val">"YOUR_ASSISTANT_SLUG"</span>
+  <span class="attr">async</span>
+<span class="tag">&gt;&lt;/script&gt;</span></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       OPTION 2 — Embedded inside a container
+  ═══════════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>Option 2 · Embedded inside a div</h2>
+    <pre><span class="comment">&lt;!-- 1. Put a container wherever you want the widget --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="val">"chat-box"</span> <span class="attr">style</span>=<span class="val">"width:430px;height:700px"</span><span class="tag">&gt;&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- 2. Drop the script tag anywhere --&gt;</span>
+<span class="tag">&lt;script</span>
+  <span class="attr">src</span>=<span class="val">"https://cdn.letchat.in/widget.js"</span>
+  <span class="attr">data-assistant-id</span>=<span class="val">"YOUR_ASSISTANT_SLUG"</span>
+  <span class="attr">data-mode</span>=<span class="val">"embed"</span>
+  <span class="attr">data-container</span>=<span class="val">"#chat-box"</span>
+  <span class="attr">async</span>
+<span class="tag">&gt;&lt;/script&gt;</span></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       OPTION 3 — Programmatic JS API
+  ═══════════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>Option 3 · Programmatic API</h2>
+    <pre><span class="tag">&lt;script <span class="attr">src</span>=<span class="val">"https://cdn.letchat.in/widget.js"</span>&gt;&lt;/script&gt;</span>
+<span class="tag">&lt;script&gt;</span>
+  LetchatWidget.init({
+    assistantId: <span class="val">'YOUR_ASSISTANT_SLUG'</span>,
+    mode: <span class="val">'embed'</span>,           <span class="comment">// 'full' | 'embed'</span>
+    container: <span class="val">'#chat-box'</span>,   <span class="comment">// CSS selector or HTMLElement</span>
+    width:  <span class="val">'430px'</span>,
+    height: <span class="val">'700px'</span>,
+    zIndex: <span class="val">9999</span>,
+  });
+<span class="tag">&lt;/script&gt;</span></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       AVAILABLE ATTRIBUTES
+  ═══════════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>Script-tag attributes</h2>
+    <table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;background:#fff">
+      <thead style="background:#e0e0e0">
+        <tr><th>Attribute</th><th>Required</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>data-assistant-id</code></td><td>✅ Yes</td><td>—</td><td>Your assistant slug</td></tr>
+        <tr><td><code>data-mode</code></td><td>No</td><td><code>full</code></td><td><code>full</code> = fixed overlay · <code>embed</code> = inside container</td></tr>
+        <tr><td><code>data-container</code></td><td>No</td><td>body</td><td>CSS selector of the mount element</td></tr>
+        <tr><td><code>data-width</code></td><td>No</td><td><code>430px</code></td><td>Widget width</td></tr>
+        <tr><td><code>data-height</code></td><td>No</td><td><code>100vh</code></td><td>Widget height</td></tr>
+        <tr><td><code>data-z-index</code></td><td>No</td><td><code>9999</code></td><td>CSS z-index</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>

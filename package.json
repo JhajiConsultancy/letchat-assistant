@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
+    "build:sdk": "tsc -b && cross-env BUILD_TARGET=sdk vite build",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },
@@ -35,6 +36,7 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.27",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5.8",
     "shadcn": "^4.2.0",
     "tailwindcss": "^3.4.3",

@@ -522,9 +522,6 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
               <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.2 }}>
                 {config.title || 'AI Assistant'}
               </Typography>
-              <Typography sx={{ color: alpha('#fff', 0.8), fontSize: '0.8rem' }}>
-                {config.subtitle}
-              </Typography>
             </Box>
 
             {/* Header action buttons — pushed to the right */}
@@ -596,8 +593,8 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
               sx={{
                 display: 'flex',
                 flexShrink: 0,
-                bgcolor: alpha(config.theme.primary_color, 0.08),
-                borderBottom: `1px solid ${alpha(config.theme.primary_color, 0.18)}`,
+                bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.03) : '#fff',
+                borderBottom: `1px solid ${alpha(config.theme.primary_color, 0.14)}`,
                 overflowX: 'auto',
                 scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': { display: 'none' },
@@ -613,14 +610,37 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
                   onClick={item.action === 'chat' ? () => { setMessages([]); setInput('') } : undefined}
                   sx={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    justifyContent: 'center', px: 2, py: 1,
-                    cursor: 'pointer', flex: 1, minWidth: 56,
+                    justifyContent: 'center', px: 2, py: 1.25,
+                    cursor: 'pointer', flex: 1, minWidth: 64,
                     textDecoration: 'none',
-                    '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.12) },
+                    gap: 0.4,
+                    transition: 'background 0.15s ease',
+                    '&:hover': {
+                      bgcolor: alpha(config.theme.primary_color, 0.08),
+                    },
+                    '&:hover .nav-icon-box': {
+                      bgcolor: alpha(config.theme.primary_color, 0.14),
+                      transform: 'scale(1.08)',
+                    },
                   }}
                 >
-                  <Typography sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{item.icon}</Typography>
-                  <Typography sx={{ fontSize: '0.65rem', color: config.theme.text_color, mt: 0.3, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  <Box
+                    className="nav-icon-box"
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: '12px',
+                      bgcolor: alpha(config.theme.primary_color, 0.08),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.18s ease',
+                      border: `1px solid ${alpha(config.theme.primary_color, 0.14)}`,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1.25rem', lineHeight: 1 }}>{item.icon}</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: '0.62rem', color: config.theme.text_color, fontWeight: 600, whiteSpace: 'nowrap', opacity: 0.75 }}>
                     {item.label}
                   </Typography>
                 </Box>
@@ -1339,8 +1359,8 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
               sx={{
                 display: 'flex',
                 flexShrink: 0,
-                bgcolor: alpha(config.theme.primary_color, 0.08),
-                borderTop: `1px solid ${alpha(config.theme.primary_color, 0.18)}`,
+                bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.03) : '#fff',
+                borderTop: `1px solid ${alpha(config.theme.primary_color, 0.14)}`,
                 overflowX: 'auto',
                 scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': { display: 'none' },
@@ -1356,14 +1376,37 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
                   onClick={item.action === 'chat' ? () => { setMessages([]); setInput('') } : undefined}
                   sx={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    justifyContent: 'center', px: 2, py: 1,
-                    cursor: 'pointer', flex: 1, minWidth: 56,
+                    justifyContent: 'center', px: 2, py: 1.25,
+                    cursor: 'pointer', flex: 1, minWidth: 64,
                     textDecoration: 'none',
-                    '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.12) },
+                    gap: 0.4,
+                    transition: 'background 0.15s ease',
+                    '&:hover': {
+                      bgcolor: alpha(config.theme.primary_color, 0.08),
+                    },
+                    '&:hover .nav-icon-box-b': {
+                      bgcolor: alpha(config.theme.primary_color, 0.14),
+                      transform: 'scale(1.08)',
+                    },
                   }}
                 >
-                  <Typography sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{item.icon}</Typography>
-                  <Typography sx={{ fontSize: '0.65rem', color: config.theme.text_color, mt: 0.3, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  <Box
+                    className="nav-icon-box-b"
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: '12px',
+                      bgcolor: alpha(config.theme.primary_color, 0.08),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.18s ease',
+                      border: `1px solid ${alpha(config.theme.primary_color, 0.14)}`,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1.25rem', lineHeight: 1 }}>{item.icon}</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: '0.62rem', color: config.theme.text_color, fontWeight: 600, whiteSpace: 'nowrap', opacity: 0.75 }}>
                     {item.label}
                   </Typography>
                 </Box>
