@@ -7,9 +7,11 @@
  * One-line embed:
  *   <script src="https://cdn.letchat.in/widget.js" data-assistant-id="YOUR_ID" async></script>
  */
-import { StrictMode } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
+import FloatingChatWidget from './features/chat/FloatingChatWidget'
+import { loadConfig } from './api/widgetConfig'
+import { ChatWidgetConfig } from './features/chat/types'
 import './index.css'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -21,43 +23,31 @@ export interface LetchatOptions {
   container?: string | HTMLElement
   /** Optional z-index for the widget container (default: 9999) */
   zIndex?: number
-  /** Optional width (default: 430px) */
-  width?: string
-  /** Optional height (default: 100vh or 700px for fixed mode) */
-  height?: string
-  /** 'full' = fixed viewport overlay, 'embed' = sized as the container (default: 'full') */
-  mode?: 'full' | 'embed'
+  /** 'full' = fixed floating button (default) */
+  mode?: 'full'
+}
+
+// ── SDK Root component ─────────────────────────────────────────────────────
+// Loads config then renders the floating widget. No URL involvement.
+
+function SdkRoot({ assistantId }: { assistantId: string }) {
+  const [config, setConfig] = useState<ChatWidgetConfig | null>(null)
+
+  useEffect(() => {
+    loadConfig(assistantId)
+      .then(setConfig)
+      .catch(() => {/* silent — SDK should not throw on customer pages */})
+  }, [assistantId])
+
+  if (!config) return null
+
+  return <FloatingChatWidget config={config} assistantId={assistantId} />
 }
 
 // ── Mount helper ───────────────────────────────────────────────────────────
 
-function createContainer(opts: LetchatOptions): HTMLElement {
-  const el = document.createElement('div')
-  el.id = 'letchat-widget-root'
-
-  const isEmbed = opts.mode === 'embed'
-
-  Object.assign(el.style, {
-    position: isEmbed ? 'relative' : 'fixed',
-    bottom: isEmbed ? 'auto' : '0',
-    right: isEmbed ? 'auto' : '0',
-    top: isEmbed ? 'auto' : '0',
-    left: isEmbed ? 'auto' : '0',
-    width: opts.width ?? (isEmbed ? '100%' : '430px'),
-    height: opts.height ?? (isEmbed ? '100%' : '100vh'),
-    zIndex: String(opts.zIndex ?? 9999),
-    overflow: 'hidden',
-    fontFamily: 'inherit',
-    border: 'none',
-    background: 'transparent',
-    maxWidth: isEmbed ? 'none' : '430px',
-  })
-
-  return el
-}
-
 function mountWidget(opts: LetchatOptions): HTMLElement {
-  // Resolve container
+  // Resolve or create container
   let host: HTMLElement
   if (opts.container) {
     host =
@@ -66,43 +56,35 @@ function mountWidget(opts: LetchatOptions): HTMLElement {
         : opts.container
     if (!host) throw new Error(`[Letchat] Container "${opts.container}" not found`)
   } else {
-    host = createContainer(opts)
+    host = document.createElement('div')
+    host.id = 'letchat-widget-root'
+    Object.assign(host.style, {
+      position: 'fixed',
+      bottom: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      zIndex: String(opts.zIndex ?? 9999),
+      overflow: 'visible',
+      background: 'transparent',
+      border: 'none',
+    })
     document.body.appendChild(host)
   }
 
-  // Inject the assistantId into the URL search params so App.tsx can read it
-  const url = new URL(window.location.href)
-  if (!url.searchParams.get('slugName') && !isSubdomainSlug()) {
-    url.searchParams.set('slugName', opts.assistantId)
-    window.history.replaceState(null, '', url.toString())
-  }
-
+  // Render FloatingChatWidget directly — no URL manipulation
   createRoot(host).render(
     <StrictMode>
-      <App />
+      <SdkRoot assistantId={opts.assistantId} />
     </StrictMode>,
   )
 
   return host
 }
 
-function isSubdomainSlug(): boolean {
-  const parts = window.location.hostname.split('.')
-  if (parts.length >= 2) {
-    const slug = parts[0].toLowerCase()
-    return !['www', 'api', 'admin', 'localhost', '127'].includes(slug)
-  }
-  return false
-}
-
 // ── Public API ──────────────────────────────────────────────────────────────
 
 const LetchatWidget = {
-  /**
-   * Programmatic mount.
-   * @example
-   * LetchatWidget.init({ assistantId: 'my-bot' })
-   */
   init(opts: LetchatOptions) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => mountWidget(opts))
@@ -133,13 +115,9 @@ function autoInit() {
   const assistantId = scriptTag.dataset.assistantId
   if (!assistantId) return
 
-  const mode = (scriptTag.dataset.mode as LetchatOptions['mode']) ?? 'full'
   const zIndex = scriptTag.dataset.zIndex ? Number(scriptTag.dataset.zIndex) : 9999
-  const width = scriptTag.dataset.width
-  const height = scriptTag.dataset.height
-  const containerSel = scriptTag.dataset.container
 
-  LetchatWidget.init({ assistantId, mode, zIndex, width, height, container: containerSel })
+  LetchatWidget.init({ assistantId, zIndex })
 }
 
 autoInit()

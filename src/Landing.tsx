@@ -160,6 +160,17 @@ function DemoCarousel() {
   const prev = () => setActive((a) => (a - 1 + DEMO_SLIDES.length) % DEMO_SLIDES.length);
   const next = () => setActive((a) => (a + 1) % DEMO_SLIDES.length);
 
+  useEffect(() => {
+    const existing = document.querySelector('script[data-widget-letchat]');
+    if (existing) return;
+    const script = document.createElement("script");
+    script.src = "https://cdn.letchat.in/dist/widget.js";
+    script.async = true;
+    script.setAttribute("data-assistant-id", "chat");
+    script.setAttribute("data-widget-letchat", "1");
+    document.body.appendChild(script);
+  }, []);
+
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -179,7 +190,7 @@ function DemoCarousel() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div
+        {/* <div
           className="flex transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${active * 100}%)` }}
         >
@@ -193,7 +204,7 @@ function DemoCarousel() {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* prev / next arrows */}
         <button

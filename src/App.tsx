@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
-import ChatWidget2 from './features/chat/ChatWidgetV2'
+import ChatWidgetV2 from './features/chat/ChatWidgetV2'
 import { loadConfig } from './api/widgetConfig'
 import { ChatWidgetConfig } from './features/chat/types'
 import LandingPage from './Landing'
@@ -74,5 +74,5 @@ export default function App() {
     )
   }
 
-  return <ChatWidget2 config={config} assistantId={assistantId!} />
+  return <ChatWidgetV2 config={config} assistantId={assistantId!} />
 }

@@ -54,6 +54,8 @@ interface Message {
 interface ChatWidgetProps {
   config: ChatWidgetConfig
   assistantId: string
+  /** When true, header collapses to icon strip once conversation starts */
+  compactHeader?: boolean
 }
 
 const LANGUAGES = [
@@ -72,7 +74,7 @@ const LANGUAGES = [
   { label: 'Japanese',             value: 'japanese' },
 ]
 
-export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
+export default function ChatWidgetV2({ config, assistantId, compactHeader = false }: ChatWidgetProps) {
   const widgetTheme = useMemo(() => {
     const isDark = config.theme.mode === 'dark'
     return createTheme({
@@ -108,6 +110,8 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
   const [humanMode, setHumanMode] = useState(false)
   const [globalError, setGlobalError] = useState<{ message: string; terminated: boolean } | null>(null)
   const [catalogueOpen, setCatalogueOpen] = useState(false)
+  // Collapse header to strip once user sends first message (only in floating/compactHeader mode)
+  const [headerCollapsed, setHeaderCollapsed] = useState(false)
   // Document summary state
   const [docSummaries, setDocSummaries] = useState<DocumentSummary[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
@@ -379,6 +383,8 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
 
   function sendMessage(text: string) {
     if ((!text.trim() && !attachedImage) || loading || isTerminated) return
+    // Collapse header to strip on first user message when in compact mode
+    if (compactHeader && !headerCollapsed) setHeaderCollapsed(true)
     const userMsg: Message = { role: 'user', text: text.trim(), image: attachedImage ?? undefined, timestamp: new Date() }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
@@ -478,112 +484,237 @@ export default function ChatWidgetV2({ config, assistantId }: ChatWidgetProps) {
 
         <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-          {/* ── Header ── */}
+          {/* ── Header (full or collapsed strip) ── */}
           <Box
             sx={{
               background: headerBg,
               backdropFilter: headerStyle === 'glass' ? 'blur(14px)' : 'none',
               borderBottom: headerStyle === 'glass' ? '1px solid rgba(255,255,255,0.1)' : 'none',
-              px: 3,
-              py: 1.75,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
               flexShrink: 0,
+              overflow: 'hidden',
+              transition: 'max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
+              maxHeight: headerCollapsed ? 44 : 120,
             }}
           >
-            {config.logo_url ? (
-              <Box
-                component="img"
-                src={config.logo_url}
-                alt="logo"
-                sx={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 1.5, bgcolor: alpha('#fff', 0.15), p: 0.5 }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '50%',
-                  bgcolor: alpha('#fff', 0.2),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontSize: 15,
-                  flexShrink: 0,
-                }}
-              >
-                SC
-              </Box>
-            )}
-            <Box>
-              <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {config.title || 'AI Assistant'}
-              </Typography>
-            </Box>
-
-            {/* Header action buttons — pushed to the right */}
-            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              {/* Catalogue button */}
-              {(config.show_catalogue ?? false) && (
-                <Tooltip title={config.catalogue_button_label || 'Catalogues'}>
-                  <Box
-                    onClick={() => setCatalogueOpen(true)}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.6,
-                      px: 1.25,
-                      py: 0.55,
-                      borderRadius: 2,
-                      bgcolor: alpha('#fff', 0.15),
-                      color: '#fff',
-                      cursor: 'pointer',
-                      transition: 'background 0.18s ease',
-                      '&:hover': { bgcolor: alpha('#fff', 0.28) },
-                    }}
-                  >
-                    <MenuBookRoundedIcon sx={{ fontSize: 17 }} />
-                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1 }}>
-                      {config.catalogue_button_label || 'Catalogues'}
-                    </Typography>
-                  </Box>
-                </Tooltip>
+            {/* ── Compact strip (shown when collapsed) ── */}
+            <Box
+              sx={{
+                height: 44,
+                px: 1.25,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.75,
+                opacity: headerCollapsed ? 1 : 0,
+                transform: headerCollapsed ? 'translateY(0)' : 'translateY(-8px)',
+                transition: 'opacity 0.22s ease, transform 0.22s ease',
+                pointerEvents: headerCollapsed ? 'all' : 'none',
+                position: headerCollapsed ? 'relative' : 'absolute',
+              }}
+            >
+              {/* Mini avatar */}
+              {config.logo_url ? (
+                <Box
+                  component="img"
+                  src={config.logo_url}
+                  alt="logo"
+                  sx={{ width: 26, height: 26, objectFit: 'contain', borderRadius: '50%', bgcolor: alpha('#fff', 0.15), flexShrink: 0 }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: '50%',
+                    bgcolor: alpha('#fff', 0.22),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                    color: '#fff',
+                    flexShrink: 0,
+                  }}
+                >
+                  {(config.title || 'AI').slice(0, 2).toUpperCase()}
+                </Box>
               )}
 
-              {/* Human handoff */}
-              {showHumanHandoff && (
-                <Tooltip title={humanMode ? 'Return to AI' : 'Talk to a human agent'}>
+              {/* Online dot + title */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flex: 1, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    bgcolor: '#4ade80',
+                    flexShrink: 0,
+                    animation: 'hpulse 2s ease-in-out infinite',
+                    '@keyframes hpulse': {
+                      '0%, 100%': { opacity: 1 },
+                      '50%': { opacity: 0.45 },
+                    },
+                  }}
+                />
+                <Typography
+                  sx={{ color: '#fff', fontWeight: 600, fontSize: '0.78rem', lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                >
+                  {config.title || 'AI Assistant'}
+                </Typography>
+              </Box>
+
+              {/* Strip action icons */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto', flexShrink: 0 }}>
+                {(config.show_catalogue ?? false) && (
+                  <Tooltip title={config.catalogue_button_label || 'Catalogues'}>
+                    <IconButton
+                      size="small"
+                      onClick={() => setCatalogueOpen(true)}
+                      sx={{ color: '#fff', bgcolor: alpha('#fff', 0.12), p: 0.6, '&:hover': { bgcolor: alpha('#fff', 0.24) } }}
+                    >
+                      <MenuBookRoundedIcon sx={{ fontSize: 15 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {showHumanHandoff && (
+                  <Tooltip title={humanMode ? 'Return to AI' : 'Talk to a human'}>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        if (!humanMode) {
+                          setHumanMode(true)
+                          setMessages((prev) => [...prev, { role: 'assistant', text: "✋ You've been connected to a human agent. Please hold on while we connect you — a team member will respond shortly.", timestamp: new Date() }])
+                        } else {
+                          setHumanMode(false)
+                        }
+                      }}
+                      sx={{ color: '#fff', bgcolor: humanMode ? alpha('#fff', 0.24) : alpha('#fff', 0.12), p: 0.6, '&:hover': { bgcolor: alpha('#fff', 0.24) } }}
+                    >
+                      {humanMode
+                        ? <AutoAwesomeRoundedIcon sx={{ fontSize: 15 }} />
+                        : <SupportAgentRoundedIcon sx={{ fontSize: 15 }} />}
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {/* Expand header back */}
+                <Tooltip title="Expand header">
                   <IconButton
-                    onClick={() => {
-                      if (!humanMode) {
-                        setHumanMode(true)
-                        setMessages((prev) => [
-                          ...prev,
-                          {
-                            role: 'assistant',
-                            text: "✋ You've been connected to a human agent. Please hold on while we connect you — a team member will respond shortly.",
-                            timestamp: new Date(),
-                          },
-                        ])
-                      } else {
-                        setHumanMode(false)
-                      }
-                    }}
-                    sx={{
-                      bgcolor: humanMode ? alpha('#fff', 0.3) : alpha('#fff', 0.15),
-                      color: '#fff',
-                      '&:hover': { bgcolor: alpha('#fff', 0.35) },
-                    }}
+                    size="small"
+                    onClick={() => setHeaderCollapsed(false)}
+                    sx={{ color: alpha('#fff', 0.7), bgcolor: 'transparent', p: 0.5, '&:hover': { bgcolor: alpha('#fff', 0.12), color: '#fff' } }}
                   >
-                    {humanMode
-                      ? <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
-                      : <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />}
+                    <ChevronRightRoundedIcon sx={{ fontSize: 14, transform: 'rotate(90deg)' }} />
                   </IconButton>
                 </Tooltip>
+              </Box>
+            </Box>
+
+            {/* ── Full header (shown when not collapsed) ── */}
+            <Box
+              sx={{
+                px: 3,
+                py: 1.75,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                opacity: headerCollapsed ? 0 : 1,
+                transform: headerCollapsed ? 'translateY(-8px)' : 'translateY(0)',
+                transition: 'opacity 0.22s ease, transform 0.22s ease',
+                pointerEvents: headerCollapsed ? 'none' : 'all',
+              }}
+            >
+              {config.logo_url ? (
+                <Box
+                  component="img"
+                  src={config.logo_url}
+                  alt="logo"
+                  sx={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 1.5, bgcolor: alpha('#fff', 0.15), p: 0.5 }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    bgcolor: alpha('#fff', 0.2),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    color: '#fff',
+                    fontSize: 15,
+                    flexShrink: 0,
+                  }}
+                >
+                  SC
+                </Box>
               )}
+              <Box>
+                <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                  {config.title || 'AI Assistant'}
+                </Typography>
+              </Box>
+
+              {/* Header action buttons — pushed to the right */}
+              <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                {/* Catalogue button */}
+                {(config.show_catalogue ?? false) && (
+                  <Tooltip title={config.catalogue_button_label || 'Catalogues'}>
+                    <Box
+                      onClick={() => setCatalogueOpen(true)}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.6,
+                        px: 1.25,
+                        py: 0.55,
+                        borderRadius: 2,
+                        bgcolor: alpha('#fff', 0.15),
+                        color: '#fff',
+                        cursor: 'pointer',
+                        transition: 'background 0.18s ease',
+                        '&:hover': { bgcolor: alpha('#fff', 0.28) },
+                      }}
+                    >
+                      <MenuBookRoundedIcon sx={{ fontSize: 17 }} />
+                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1 }}>
+                        {config.catalogue_button_label || 'Catalogues'}
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                )}
+
+                {/* Human handoff */}
+                {showHumanHandoff && (
+                  <Tooltip title={humanMode ? 'Return to AI' : 'Talk to a human agent'}>
+                    <IconButton
+                      onClick={() => {
+                        if (!humanMode) {
+                          setHumanMode(true)
+                          setMessages((prev) => [
+                            ...prev,
+                            {
+                              role: 'assistant',
+                              text: "✋ You've been connected to a human agent. Please hold on while we connect you — a team member will respond shortly.",
+                              timestamp: new Date(),
+                            },
+                          ])
+                        } else {
+                          setHumanMode(false)
+                        }
+                      }}
+                      sx={{
+                        bgcolor: humanMode ? alpha('#fff', 0.3) : alpha('#fff', 0.15),
+                        color: '#fff',
+                        '&:hover': { bgcolor: alpha('#fff', 0.35) },
+                      }}
+                    >
+                      {humanMode
+                        ? <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
+                        : <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />}
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
           </Box>
 

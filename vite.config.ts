@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import path from 'path'
 
 // ---------------------------------------------------------------------------
@@ -14,7 +15,7 @@ import path from 'path'
 const isSdkBuild = process.env.BUILD_TARGET === 'sdk'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ...(isSdkBuild ? [cssInjectedByJsPlugin()] : [])],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -26,7 +27,7 @@ export default defineConfig({
     allowedHosts: true, // Allow any host (e.g., neeraj.localhost)
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://api.letchat.in',
         changeOrigin: true,
         ws: true, // Proxy WebSocket connections for real-time features
       },
@@ -34,6 +35,9 @@ export default defineConfig({
   },
   // SDK library build (BUILD_TARGET=sdk)
   ...(isSdkBuild && {
+    define: {
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    },
     build: {
       outDir: 'dist-sdk',
       lib: {
