@@ -74,7 +74,7 @@ const LANGUAGES = [
   { label: 'Japanese',             value: 'japanese' },
 ]
 
-export default function ChatWidgetV2({ config, assistantId, compactHeader = false }: ChatWidgetProps) {
+export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
   const widgetTheme = useMemo(() => {
     const isDark = config.theme.mode === 'dark'
     return createTheme({
