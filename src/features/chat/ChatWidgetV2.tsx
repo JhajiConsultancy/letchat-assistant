@@ -383,8 +383,8 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
 
   function sendMessage(text: string) {
     if ((!text.trim() && !attachedImage) || loading || isTerminated) return
-    // Collapse header to strip on first user message when in compact mode
-    if (compactHeader && !headerCollapsed) setHeaderCollapsed(true)
+    // Collapse header to compact strip on first user message
+    if (!headerCollapsed) setHeaderCollapsed(true)
     const userMsg: Message = { role: 'user', text: text.trim(), image: attachedImage ?? undefined, timestamp: new Date() }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
@@ -492,23 +492,24 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
               borderBottom: headerStyle === 'glass' ? '1px solid rgba(255,255,255,0.1)' : 'none',
               flexShrink: 0,
               overflow: 'hidden',
-              transition: 'max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
-              maxHeight: headerCollapsed ? 44 : 120,
+              transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              maxHeight: headerCollapsed ? 52 : 130,
             }}
           >
             {/* ── Compact strip (shown when collapsed) ── */}
             <Box
               sx={{
-                height: 44,
-                px: 1.25,
+                height: 52,
+                px: 2,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 0.75,
+                gap: 1,
                 opacity: headerCollapsed ? 1 : 0,
-                transform: headerCollapsed ? 'translateY(0)' : 'translateY(-8px)',
-                transition: 'opacity 0.22s ease, transform 0.22s ease',
+                transform: headerCollapsed ? 'translateY(0)' : 'translateY(-10px)',
+                transition: 'opacity 0.25s ease, transform 0.25s ease',
                 pointerEvents: headerCollapsed ? 'all' : 'none',
                 position: headerCollapsed ? 'relative' : 'absolute',
+                borderBottom: headerCollapsed ? `1px solid rgba(255,255,255,0.1)` : 'none',
               }}
             >
               {/* Mini avatar */}
@@ -517,49 +518,47 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
                   component="img"
                   src={config.logo_url}
                   alt="logo"
-                  sx={{ width: 26, height: 26, objectFit: 'contain', borderRadius: '50%', bgcolor: alpha('#fff', 0.15), flexShrink: 0 }}
+                  sx={{
+                    width: 32, height: 32, objectFit: 'contain', borderRadius: '50%',
+                    border: '1.5px solid rgba(255,255,255,0.25)',
+                    bgcolor: alpha('#fff', 0.12), flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+                  }}
                 />
               ) : (
                 <Box
                   sx={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: '50%',
-                    bgcolor: alpha('#fff', 0.22),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    color: '#fff',
-                    flexShrink: 0,
+                    width: 32, height: 32, borderRadius: '50%',
+                    background: `linear-gradient(135deg, ${alpha('#fff', 0.28)}, ${alpha('#fff', 0.1)})`,
+                    border: '1.5px solid rgba(255,255,255,0.25)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.65rem', fontWeight: 700, color: '#fff', flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
                   }}
                 >
                   {(config.title || 'AI').slice(0, 2).toUpperCase()}
                 </Box>
               )}
 
-              {/* Online dot + title */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flex: 1, minWidth: 0 }}>
-                <Box
-                  sx={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    bgcolor: '#4ade80',
-                    flexShrink: 0,
-                    animation: 'hpulse 2s ease-in-out infinite',
-                    '@keyframes hpulse': {
-                      '0%, 100%': { opacity: 1 },
-                      '50%': { opacity: 0.45 },
-                    },
-                  }}
-                />
+              {/* Title + status row */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: 0.2 }}>
                 <Typography
-                  sx={{ color: '#fff', fontWeight: 600, fontSize: '0.78rem', lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  sx={{ color: '#fff', fontWeight: 700, fontSize: '0.82rem', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                 >
                   {config.title || 'AI Assistant'}
                 </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box
+                    sx={{
+                      width: 6, height: 6, borderRadius: '50%', bgcolor: '#4ade80', flexShrink: 0,
+                      animation: 'hpulse 2.5s ease-in-out infinite',
+                      '@keyframes hpulse': { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.35 } },
+                    }}
+                  />
+                  <Typography sx={{ color: alpha('#fff', 0.72), fontSize: '0.65rem', lineHeight: 1, fontWeight: 500 }}>
+                    Online
+                  </Typography>
+                </Box>
               </Box>
 
               {/* Strip action icons */}
@@ -600,9 +599,14 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
                   <IconButton
                     size="small"
                     onClick={() => setHeaderCollapsed(false)}
-                    sx={{ color: alpha('#fff', 0.7), bgcolor: 'transparent', p: 0.5, '&:hover': { bgcolor: alpha('#fff', 0.12), color: '#fff' } }}
+                    sx={{
+                      color: alpha('#fff', 0.65), bgcolor: alpha('#fff', 0.08), p: 0.55,
+                      borderRadius: '8px',
+                      '&:hover': { bgcolor: alpha('#fff', 0.18), color: '#fff' },
+                      transition: 'all 0.15s ease',
+                    }}
                   >
-                    <ChevronRightRoundedIcon sx={{ fontSize: 14, transform: 'rotate(90deg)' }} />
+                    <ChevronRightRoundedIcon sx={{ fontSize: 15, transform: 'rotate(90deg)' }} />
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -612,13 +616,13 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
             <Box
               sx={{
                 px: 3,
-                py: 1.75,
+                py: 2,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1.5,
+                gap: 1.75,
                 opacity: headerCollapsed ? 0 : 1,
-                transform: headerCollapsed ? 'translateY(-8px)' : 'translateY(0)',
-                transition: 'opacity 0.22s ease, transform 0.22s ease',
+                transform: headerCollapsed ? 'translateY(-10px)' : 'translateY(0)',
+                transition: 'opacity 0.25s ease, transform 0.25s ease',
                 pointerEvents: headerCollapsed ? 'none' : 'all',
               }}
             >
@@ -627,31 +631,43 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
                   component="img"
                   src={config.logo_url}
                   alt="logo"
-                  sx={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 1.5, bgcolor: alpha('#fff', 0.15), p: 0.5 }}
+                  sx={{
+                    width: 46, height: 46, objectFit: 'contain', borderRadius: '14px',
+                    bgcolor: alpha('#fff', 0.15), p: 0.5,
+                    border: '1.5px solid rgba(255,255,255,0.22)',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  }}
                 />
               ) : (
                 <Box
                   sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    bgcolor: alpha('#fff', 0.2),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    color: '#fff',
-                    fontSize: 15,
-                    flexShrink: 0,
+                    width: 46, height: 46, borderRadius: '14px',
+                    background: `linear-gradient(135deg, ${alpha('#fff', 0.28)}, ${alpha('#fff', 0.1)})`,
+                    border: '1.5px solid rgba(255,255,255,0.22)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 700, color: '#fff', fontSize: 17, flexShrink: 0,
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
                   }}
                 >
-                  SC
+                  {(config.title || 'AI').slice(0, 2).toUpperCase()}
                 </Box>
               )}
-              <Box>
-                <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.35 }}>
+                <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.08rem', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
                   {config.title || 'AI Assistant'}
                 </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                  <Box
+                    sx={{
+                      width: 7, height: 7, borderRadius: '50%', bgcolor: '#4ade80',
+                      animation: 'fullpulse 2.5s ease-in-out infinite',
+                      '@keyframes fullpulse': { '0%, 100%': { opacity: 1, transform: 'scale(1)' }, '50%': { opacity: 0.55, transform: 'scale(0.85)' } },
+                    }}
+                  />
+                  <Typography sx={{ color: alpha('#fff', 0.75), fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.01em' }}>
+                    {config.subtitle || 'Online · AI Powered'}
+                  </Typography>
+                </Box>
               </Box>
 
               {/* Header action buttons — pushed to the right */}
@@ -960,7 +976,7 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
           )}
 
           {/* ── Messages area ── */}
-          <Box sx={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
+          <Box sx={{ position: 'relative', flex: 1, overflow: 'hidden', minHeight: 0 }}>
             {/* Powered by Letchat — absolute overlay, zero space */}
             <Box sx={{
               position: 'absolute',
@@ -977,28 +993,81 @@ export default function ChatWidgetV2({ config, assistantId, compactHeader = fals
             </Box>
           <Box
             sx={{
-              flex: 1,
-              height: '100%',
+              position: 'absolute',
+              inset: 0,
               overflowY: 'auto',
+              overflowX: 'hidden',
               px: { xs: 2, sm: 3, md: 4 },
               py: 2.5,
               display: 'flex',
               flexDirection: 'column',
               gap: msgGap,
               scrollbarWidth: 'thin',
+              scrollbarColor: `${alpha(config.theme.primary_color, 0.35)} transparent`,
+              '&::-webkit-scrollbar': { width: 4 },
+              '&::-webkit-scrollbar-track': { background: 'transparent' },
+              '&::-webkit-scrollbar-thumb': { borderRadius: 4, background: alpha(config.theme.primary_color, 0.35) },
               maxWidth: 860,
               width: '100%',
               mx: 'auto',
-              alignSelf: 'center',
+              left: '50%',
+              transform: 'translateX(-50%)',
               boxSizing: 'border-box',
             }}
           >
             {messages.length === 0 && (
-              <Box sx={{ textAlign: 'center', mt: 6 }}>
-                <AutoAwesomeRoundedIcon sx={{ fontSize: 48, color: config.theme.primary_color, mb: 1.5 }} />
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: msgFontSize, maxWidth: 400, mx: 'auto' }}>
-                  {config.welcome_message || "Hi! I'm here to help."}
-                </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flex: 1,
+                  mt: 4,
+                  gap: 2,
+                  px: 2,
+                  textAlign: 'center',
+                }}
+              >
+                {/* Glowing avatar */}
+                <Box
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: gradient,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: `0 0 0 8px ${alpha(config.theme.primary_color, 0.12)}, 0 0 0 16px ${alpha(config.theme.primary_color, 0.06)}`,
+                    mb: 0.5,
+                  }}
+                >
+                  <AutoAwesomeRoundedIcon sx={{ fontSize: 30, color: '#fff' }} />
+                </Box>
+
+                <Box sx={{ maxWidth: 340 }}>
+                  <Typography
+                    sx={{
+                      fontSize: '1.05rem',
+                      fontWeight: 700,
+                      color: config.theme.mode === 'dark' ? alpha('#fff', 0.92) : alpha(config.theme.text_color, 0.88),
+                      lineHeight: 1.3,
+                      mb: 0.75,
+                    }}
+                  >
+                    {config.title || 'AI Assistant'}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: msgFontSize,
+                      color: config.theme.mode === 'dark' ? alpha('#fff', 0.5) : alpha(config.theme.text_color, 0.52),
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {config.welcome_message || "Hi! I'm here to help. Ask me anything."}
+                  </Typography>
+                </Box>
               </Box>
             )}
 

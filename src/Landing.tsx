@@ -160,16 +160,16 @@ function DemoCarousel() {
   const prev = () => setActive((a) => (a - 1 + DEMO_SLIDES.length) % DEMO_SLIDES.length);
   const next = () => setActive((a) => (a + 1) % DEMO_SLIDES.length);
 
-  useEffect(() => {
-    const existing = document.querySelector('script[data-widget-letchat]');
-    if (existing) return;
-    const script = document.createElement("script");
-    script.src = "https://cdn.letchat.in/dist/widget.js";
-    script.async = true;
-    script.setAttribute("data-assistant-id", "chat");
-    script.setAttribute("data-widget-letchat", "1");
-    document.body.appendChild(script);
-  }, []);
+  // useEffect(() => {
+  //   const existing = document.querySelector('script[data-widget-letchat]');
+  //   if (existing) return;
+  //   const script = document.createElement("script");
+  //   script.src = "https://cdn.letchat.in/dist/widget.js";
+  //   script.async = true;
+  //   script.setAttribute("data-assistant-id", "iskconnasik");
+  //   script.setAttribute("data-widget-letchat", "1");
+  //   document.body.appendChild(script);
+  // }, []);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
