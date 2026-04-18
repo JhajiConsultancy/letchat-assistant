@@ -615,11 +615,11 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
             {/* ── Full header (shown when not collapsed) ── */}
             <Box
               sx={{
-                px: 3,
-                py: 2,
+                px: { xs: 2, sm: 3 },
+                py: { xs: 1.5, sm: 2 },
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1.75,
+                gap: { xs: 1.25, sm: 1.75 },
                 opacity: headerCollapsed ? 0 : 1,
                 transform: headerCollapsed ? 'translateY(-10px)' : 'translateY(0)',
                 transition: 'opacity 0.25s ease, transform 0.25s ease',
@@ -652,26 +652,38 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                   {(config.title || 'AI').slice(0, 2).toUpperCase()}
                 </Box>
               )}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.35 }}>
-                <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '1.08rem', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3, flex: 1, minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    color: '#fff', fontWeight: 700,
+                    fontSize: { xs: '0.95rem', sm: '1.08rem' },
+                    lineHeight: 1.1, letterSpacing: '-0.01em',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}
+                >
                   {config.title || 'AI Assistant'}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, minWidth: 0 }}>
                   <Box
                     sx={{
-                      width: 7, height: 7, borderRadius: '50%', bgcolor: '#4ade80',
+                      width: 7, height: 7, flexShrink: 0, borderRadius: '50%', bgcolor: '#4ade80',
                       animation: 'fullpulse 2.5s ease-in-out infinite',
                       '@keyframes fullpulse': { '0%, 100%': { opacity: 1, transform: 'scale(1)' }, '50%': { opacity: 0.55, transform: 'scale(0.85)' } },
                     }}
                   />
-                  <Typography sx={{ color: alpha('#fff', 0.75), fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.01em' }}>
+                  <Typography
+                    sx={{
+                      color: alpha('#fff', 0.75), fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.01em',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}
+                  >
                     {config.subtitle || 'Online · AI Powered'}
                   </Typography>
                 </Box>
               </Box>
 
               {/* Header action buttons — pushed to the right */}
-              <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                 {/* Catalogue button */}
                 {(config.show_catalogue ?? false) && (
                   <Tooltip title={config.catalogue_button_label || 'Catalogues'}>
@@ -680,8 +692,8 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                       sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 0.6,
-                        px: 1.25,
+                        gap: 0.5,
+                        px: { xs: 0.9, sm: 1.25 },
                         py: 0.55,
                         borderRadius: 2,
                         bgcolor: alpha('#fff', 0.15),
@@ -689,10 +701,12 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                         cursor: 'pointer',
                         transition: 'background 0.18s ease',
                         '&:hover': { bgcolor: alpha('#fff', 0.28) },
+                        maxWidth: { xs: 110, sm: 'none' },
+                        overflow: 'hidden',
                       }}
                     >
-                      <MenuBookRoundedIcon sx={{ fontSize: 17 }} />
-                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, lineHeight: 1 }}>
+                      <MenuBookRoundedIcon sx={{ fontSize: 16, flexShrink: 0 }} />
+                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {config.catalogue_button_label || 'Catalogues'}
                       </Typography>
                     </Box>
@@ -997,7 +1011,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
               inset: 0,
               overflowY: 'auto',
               overflowX: 'hidden',
-              px: { xs: 2, sm: 3, md: 4 },
+              px: { xs: 1.5, sm: 3, md: 4 },
               py: 2.5,
               display: 'flex',
               flexDirection: 'column',
@@ -1101,8 +1115,9 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
 
                 <Box
                   sx={{
-                    maxWidth: '70%',
-                    px: 1.75,
+                    maxWidth: { xs: '85%', sm: '75%', md: '70%' },
+                    minWidth: 0,
+                    px: { xs: 1.25, sm: 1.75 },
                     py: 1.1,
                     borderRadius: msg.role === 'user' ? userBubbleR : botBubbleR,
                     background:
@@ -1345,8 +1360,8 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
           ) : (
           <Box
             sx={{
-              px: { xs: 2, sm: 3, md: 4 },
-              pb: 2,
+              px: { xs: 1.5, sm: 3, md: 4 },
+              pb: { xs: 1.5, sm: 2 },
               pt: 0.75,
               flexShrink: 0,
               borderTop: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.06)}`,
@@ -1393,17 +1408,19 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
               onChange={(e) => void handleImageAttach(e)}
             />
 
-            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, maxWidth: 860, mx: 'auto' }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, width: '100%', maxWidth: 860, mx: 'auto' }}>
               <Box
                 sx={{
                   flex: 1,
+                  minWidth: 0,        /* allow shrinking below content size */
+                  overflow: 'hidden', /* contain any overflow inside the pill */
                   display: 'flex',
                   alignItems: 'flex-end',
-                  gap: 0.25,
+                  gap: 0,
                   borderRadius: `${config.input_radius ?? 22}px`,
                   bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.07) : alpha('#000', 0.05),
                   border: `1px solid ${alpha(config.theme.primary_color, 0.2)}`,
-                  px: 1.25,
+                  px: 1,
                   py: 0.625,
                   transition: 'border-color 0.2s',
                   '&:focus-within': { borderColor: alpha(config.theme.primary_color, 0.6) },
@@ -1416,7 +1433,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                       size="small"
                       disabled={loading || isTerminated}
                       onClick={(e) => setEmojiAnchor(e.currentTarget)}
-                      sx={{ color: 'text.secondary', p: 1, '&:hover': { color: config.theme.primary_color } }}
+                      sx={{ color: 'text.secondary', p: { xs: 0.75, sm: 1 }, flexShrink: 0, '&:hover': { color: config.theme.primary_color } }}
                     >
                       <EmojiEmotionsRoundedIcon sx={{ fontSize: 20 }} />
                     </IconButton>
@@ -1437,7 +1454,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                       size="small"
                       disabled={loading || isTerminated}
                       onClick={() => imageInputRef.current?.click()}
-                      sx={{ color: 'text.secondary', p: 1, '&:hover': { color: config.theme.primary_color } }}
+                      sx={{ color: 'text.secondary', p: { xs: 0.75, sm: 1 }, flexShrink: 0, '&:hover': { color: config.theme.primary_color } }}
                     >
                       <AttachFileRoundedIcon sx={{ fontSize: 20 }} />
                     </IconButton>
@@ -1464,7 +1481,8 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                     resize: 'none',
                     background: 'transparent',
                     color: config.theme.text_color,
-                    fontSize: '0.88rem',
+                    /* 16px minimum prevents iOS Safari zoom-on-focus */
+                    fontSize: '16px',
                     lineHeight: 1.5,
                     py: 0.85,
                     px: 0.5,
@@ -1473,6 +1491,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                     overflowY: 'hidden',
                     maxHeight: 120,
                     overflowWrap: 'break-word',
+                    touchAction: 'manipulation',
                   }}
                 />
 
@@ -1489,7 +1508,8 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                         <LanguageRoundedIcon sx={{ fontSize: 20, color: 'text.secondary', display: 'flex' }} />
                       )}
                       sx={{
-                        '& .MuiSelect-select': { p: 1, display: 'flex', alignItems: 'center' },
+                        flexShrink: 0,
+                        '& .MuiSelect-select': { p: { xs: 0.75, sm: 1 }, display: 'flex', alignItems: 'center' },
                         '& .MuiSelect-icon': { display: 'none' },
                       }}
                     >
