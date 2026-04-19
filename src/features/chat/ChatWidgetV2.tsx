@@ -122,6 +122,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
   const [summaryCopied, setSummaryCopied] = useState(false)
   const [drawerTab, setDrawerTab] = useState(0)
   const [docSummariesOpen, setDocSummariesOpen] = useState(false)
+  const [pinnedOpen, setPinnedOpen] = useState(true)
   const recognitionRef = useRef<any | null>(null)
   // Persistent WebSocket refs
   const wsRef = useRef<WebSocket | null>(null)
@@ -1283,54 +1284,116 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
           </Box>
           </Box>
 
-          {/* ── Pinned questions ── */}
+          {/* ── Pinned questions (collapsible suggestion cards) ── */}
           {config.pinned_questions.length > 0 && (
-            <Box sx={{ position: 'relative', flexShrink: 0, maxWidth: 860, width: '100%', mx: 'auto', alignSelf: 'center' }}>
             <Box
               sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                pt: 1.5,
-                pb: 1.5,
-                display: 'flex',
-                gap: 0.75,
-                overflowX: 'auto',
                 flexShrink: 0,
-                scrollbarWidth: 'none',
-                '&::-webkit-scrollbar': { display: 'none' },
                 width: '100%',
+                minWidth: 0,
+                maxWidth: 860,
+                mx: 'auto',
+                alignSelf: 'center',
+                overflow: 'hidden',
                 boxSizing: 'border-box',
               }}
             >
-              {config.pinned_questions.map((q) => {
-                const ps = config.pinned_style ?? 'chip'
-                const pinnedSx =
-                  ps === 'pill'
-                    ? { flexShrink: 0, bgcolor: alpha(config.theme.primary_color, 0.07), border: `1.5px solid ${alpha(config.theme.primary_color, 0.55)}`, color: config.theme.primary_color, fontSize: '0.75rem', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.18s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.07)', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.14), borderColor: config.theme.primary_color, boxShadow: '0 2px 6px rgba(0,0,0,0.12)', transform: 'translateY(-1px)' }, '&:active': { transform: 'scale(0.97)', boxShadow: 'none' } }
-                    : ps === 'button'
-                    ? { flexShrink: 0, background: gradient, border: 'none', color: '#fff', fontSize: '0.75rem', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.18s ease', '&:hover': { filter: 'brightness(1.12)', transform: 'translateY(-1px)', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }, '&:active': { transform: 'scale(0.97)' } }
-                    : { flexShrink: 0, bgcolor: alpha(config.theme.primary_color, 0.13), border: `1px solid ${alpha(config.theme.primary_color, 0.35)}`, color: config.theme.text_color, fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.18s ease', '&:hover': { bgcolor: alpha(config.theme.primary_color, 0.22), borderColor: alpha(config.theme.primary_color, 0.6), transform: 'translateY(-1px)', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }, '&:active': { transform: 'scale(0.97)' } }
-                return (
-                  <Chip
+              {/* Toggle row */}
+              <Box
+                component="button"
+                onClick={() => setPinnedOpen((o) => !o)}
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: { xs: 1.5, sm: 3, md: 4 },
+                  py: 0.6,
+                  background: 'none',
+                  border: 'none',
+                  borderTop: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.06)}`,
+                  cursor: 'pointer',
+                  gap: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '0.68rem',
+                    fontWeight: 600,
+                    color: alpha(config.theme.text_color, 0.45),
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Suggestions
+                </Typography>
+                <ChevronRightRoundedIcon
+                  sx={{
+                    fontSize: 14,
+                    color: alpha(config.theme.text_color, 0.35),
+                    transition: 'transform 0.22s ease',
+                    transform: pinnedOpen ? 'rotate(270deg)' : 'rotate(90deg)',
+                    flexShrink: 0,
+                  }}
+                />
+              </Box>
+
+              {/* Collapsible cards */}
+              <Box
+                sx={{
+                  overflow: 'hidden',
+                  maxHeight: pinnedOpen ? `${config.pinned_questions.length * 56}px` : 0,
+                  transition: 'max-height 0.28s cubic-bezier(0.4,0,0.2,1)',
+                  px: { xs: 1.5, sm: 3, md: 4 },
+                  pb: pinnedOpen ? 0.75 : 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0.6,
+                  boxSizing: 'border-box',
+                  minWidth: 0,
+                }}
+              >
+                {config.pinned_questions.map((q) => (
+                  <Box
                     key={q}
-                    label={q}
-                    size="small"
+                    component="button"
                     onClick={() => void sendMessage(q)}
                     disabled={loading || isTerminated}
-                    sx={pinnedSx}
-                  />
-                )
-              })}
-            </Box>
-            {/* Fade-out hint for overflowing chips */}
-            <Box sx={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: 40,
-              background: `linear-gradient(to right, transparent, ${config.theme.mode === 'dark' ? alpha('#0D0D17', 0.9) : alpha('#F5F5F5', 0.95)})`,
-              pointerEvents: 'none',
-            }} />
+                    sx={{
+                      width: '100%',
+                      minWidth: 0,
+                      textAlign: 'left',
+                      px: 2,
+                      py: 1.1,
+                      borderRadius: '20px',
+                      border: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.1)}`,
+                      bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.05) : alpha('#000', 0.03),
+                      color: config.theme.mode === 'dark' ? alpha('#fff', 0.82) : alpha(config.theme.text_color, 0.82),
+                      fontSize: '0.8rem',
+                      fontFamily: '"Google Sans", "Roboto", sans-serif',
+                      fontWeight: 450,
+                      lineHeight: 1.4,
+                      cursor: 'pointer',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
+                      display: 'block',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
+                      '&:hover:not(:disabled)': {
+                        bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.1) : alpha(config.theme.primary_color, 0.06),
+                        borderColor: alpha(config.theme.primary_color, 0.4),
+                        boxShadow: `0 1px 6px ${alpha(config.theme.primary_color, 0.12)}`,
+                      },
+                      '&:active:not(:disabled)': { transform: 'scale(0.99)' },
+                      '&:disabled': { opacity: 0.45, cursor: 'default' },
+                    }}
+                  >
+                    {q}
+                  </Box>
+                ))}
+              </Box>
             </Box>
           )}
 
