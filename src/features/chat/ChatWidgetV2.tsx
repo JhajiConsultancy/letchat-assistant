@@ -4,6 +4,7 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Collapse,
   IconButton,
   MenuItem,
   Select,
@@ -1284,7 +1285,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
           </Box>
           </Box>
 
-          {/* ── Pinned questions (collapsible suggestion cards) ── */}
+          {/* ── Pinned questions (collapsible suggestion chips) ── */}
           {config.pinned_questions.length > 0 && (
             <Box
               sx={{
@@ -1294,8 +1295,8 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                 maxWidth: 860,
                 mx: 'auto',
                 alignSelf: 'center',
-                overflow: 'hidden',
                 boxSizing: 'border-box',
+                borderTop: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.06)}`,
               }}
             >
               {/* Toggle row */}
@@ -1308,92 +1309,118 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   px: { xs: 1.5, sm: 3, md: 4 },
-                  py: 0.6,
+                  py: 0.65,
                   background: 'none',
                   border: 'none',
-                  borderTop: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.06)}`,
                   cursor: 'pointer',
                   gap: 1,
+                  '&:hover .pinned-label': {
+                    color: alpha(config.theme.text_color, 0.7),
+                  },
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: '0.68rem',
-                    fontWeight: 600,
-                    color: alpha(config.theme.text_color, 0.45),
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Suggestions
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${config.theme.primary_color}, ${config.theme.accent_color})`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <AutoAwesomeRoundedIcon sx={{ fontSize: 9, color: '#fff' }} />
+                  </Box>
+                  <Typography
+                    className="pinned-label"
+                    sx={{
+                      fontSize: '0.64rem',
+                      fontWeight: 700,
+                      color: alpha(config.theme.text_color, 0.4),
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.15s',
+                    }}
+                  >
+                    Suggestions
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.6rem', color: alpha(config.theme.primary_color, 0.6), fontWeight: 600 }}>
+                    {config.pinned_questions.length}
+                  </Typography>
+                </Box>
                 <ChevronRightRoundedIcon
                   sx={{
-                    fontSize: 14,
-                    color: alpha(config.theme.text_color, 0.35),
-                    transition: 'transform 0.22s ease',
-                    transform: pinnedOpen ? 'rotate(270deg)' : 'rotate(90deg)',
+                    fontSize: 13,
+                    color: alpha(config.theme.text_color, 0.3),
+                    transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+                    transform: pinnedOpen ? 'rotate(-90deg)' : 'rotate(90deg)',
                     flexShrink: 0,
                   }}
                 />
               </Box>
 
-              {/* Collapsible cards */}
-              <Box
-                sx={{
-                  overflow: 'hidden',
-                  maxHeight: pinnedOpen ? `${config.pinned_questions.length * 56}px` : 0,
-                  transition: 'max-height 0.28s cubic-bezier(0.4,0,0.2,1)',
-                  px: { xs: 1.5, sm: 3, md: 4 },
-                  pb: pinnedOpen ? 0.75 : 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 0.6,
-                  boxSizing: 'border-box',
-                  minWidth: 0,
-                }}
-              >
-                {config.pinned_questions.map((q) => (
-                  <Box
-                    key={q}
-                    component="button"
-                    onClick={() => void sendMessage(q)}
-                    disabled={loading || isTerminated}
-                    sx={{
-                      width: '100%',
-                      minWidth: 0,
-                      textAlign: 'left',
-                      px: 2,
-                      py: 1.1,
-                      borderRadius: '20px',
-                      border: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.1)}`,
-                      bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.05) : alpha('#000', 0.03),
-                      color: config.theme.mode === 'dark' ? alpha('#fff', 0.82) : alpha(config.theme.text_color, 0.82),
-                      fontSize: '0.8rem',
-                      fontFamily: '"Google Sans", "Roboto", sans-serif',
-                      fontWeight: 450,
-                      lineHeight: 1.4,
-                      cursor: 'pointer',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                      overflow: 'hidden',
-                      display: 'block',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
-                      '&:hover:not(:disabled)': {
-                        bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.1) : alpha(config.theme.primary_color, 0.06),
-                        borderColor: alpha(config.theme.primary_color, 0.4),
-                        boxShadow: `0 1px 6px ${alpha(config.theme.primary_color, 0.12)}`,
-                      },
-                      '&:active:not(:disabled)': { transform: 'scale(0.99)' },
-                      '&:disabled': { opacity: 0.45, cursor: 'default' },
-                    }}
-                  >
-                    {q}
-                  </Box>
-                ))}
-              </Box>
+              {/* Smooth collapse via MUI Collapse */}
+              <Collapse in={pinnedOpen} timeout={260} unmountOnExit={false}>
+                <Box
+                  sx={{
+                    px: { xs: 1.5, sm: 3, md: 4 },
+                    pb: 0.9,
+                    pt: 0.35,
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 0.65,
+                    boxSizing: 'border-box',
+                    minWidth: 0,
+                  }}
+                >
+                  {config.pinned_questions.map((q) => (
+                    <Box
+                      key={q}
+                      component="button"
+                      onClick={() => void sendMessage(q)}
+                      disabled={loading || isTerminated}
+                      sx={{
+                        flex: '1 1 calc(50% - 6px)',
+                        minWidth: 0,
+                        maxWidth: '100%',
+                        textAlign: 'left',
+                        px: 1.5,
+                        py: 0.85,
+                        borderRadius: '16px',
+                        border: `1px solid ${alpha(config.theme.mode === 'dark' ? '#fff' : '#000', 0.09)}`,
+                        bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.05) : alpha('#fff', 0.8),
+                        color: config.theme.mode === 'dark' ? alpha('#fff', 0.82) : alpha(config.theme.text_color, 0.82),
+                        fontSize: '0.77rem',
+                        fontFamily: '"Google Sans", "Roboto", sans-serif',
+                        fontWeight: 450,
+                        lineHeight: 1.35,
+                        cursor: 'pointer',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                        overflow: 'hidden',
+                        display: 'block',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        boxShadow: config.theme.mode === 'dark' ? 'none' : `0 1px 3px ${alpha('#000', 0.06)}`,
+                        transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+                        '&:hover:not(:disabled)': {
+                          bgcolor: config.theme.mode === 'dark' ? alpha('#fff', 0.1) : alpha(config.theme.primary_color, 0.07),
+                          borderColor: alpha(config.theme.primary_color, 0.45),
+                          boxShadow: `0 2px 8px ${alpha(config.theme.primary_color, 0.14)}`,
+                          color: config.theme.primary_color,
+                        },
+                        '&:active:not(:disabled)': { transform: 'scale(0.98)' },
+                        '&:disabled': { opacity: 0.4, cursor: 'default' },
+                      }}
+                    >
+                      {q}
+                    </Box>
+                  ))}
+                </Box>
+              </Collapse>
             </Box>
           )}
 
@@ -1560,7 +1587,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
 
                 {/* Language selector */}
                 {showLanguage && (
-                  <Tooltip title="Response language — tap to switch">
+                  <Tooltip title={`Language: ${LANGUAGES.find(l => l.value === selectedLang)?.label ?? selectedLang} — tap to switch`}>
                     <Select
                       value={selectedLang}
                       onChange={(e) => setSelectedLang(e.target.value)}
@@ -1568,16 +1595,38 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                       disableUnderline
                       disabled={loading || isTerminated}
                       renderValue={() => (
-                        <LanguageRoundedIcon sx={{ fontSize: 20, color: 'text.secondary', display: 'flex' }} />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, p: { xs: 0.5, sm: 0.75 } }}>
+                          <LanguageRoundedIcon sx={{ fontSize: 18, color: alpha(config.theme.primary_color, 0.75) }} />
+                          <Box
+                            sx={{
+                              width: 16,
+                              height: 16,
+                              borderRadius: '50%',
+                              bgcolor: alpha(config.theme.primary_color, 0.12),
+                              border: `1px solid ${alpha(config.theme.primary_color, 0.25)}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.48rem', fontWeight: 700, color: config.theme.primary_color, lineHeight: 1, fontFamily: 'monospace' }}>
+                              {selectedLang.slice(0, 2).toUpperCase()}
+                            </Typography>
+                          </Box>
+                        </Box>
                       )}
                       sx={{
                         flexShrink: 0,
-                        '& .MuiSelect-select': { p: { xs: 0.75, sm: 1 }, display: 'flex', alignItems: 'center' },
+                        '& .MuiSelect-select': { p: 0, display: 'flex', alignItems: 'center' },
                         '& .MuiSelect-icon': { display: 'none' },
                       }}
                     >
                       {LANGUAGES.map((lang) => (
-                        <MenuItem key={lang.value} value={lang.value} sx={{ fontSize: '0.82rem' }}>
+                        <MenuItem key={lang.value} value={lang.value} sx={{ fontSize: '0.82rem', gap: 1 }}>
+                          <Typography sx={{ fontSize: '0.7rem', fontFamily: 'monospace', color: 'text.secondary', minWidth: 22 }}>
+                            {lang.value.slice(0, 2).toUpperCase()}
+                          </Typography>
                           {lang.label}
                         </MenuItem>
                       ))}
