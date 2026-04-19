@@ -16,7 +16,7 @@ import {
   alpha,
   createTheme,
 } from '@mui/material'
-import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded'
+// import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded'
 import SendRoundedIcon from '@mui/icons-material/SendRounded'
 import MicRoundedIcon from '@mui/icons-material/MicRounded'
 import MicOffRoundedIcon from '@mui/icons-material/MicOffRounded'
@@ -59,21 +59,7 @@ interface ChatWidgetProps {
   compactHeader?: boolean
 }
 
-const LANGUAGES = [
-  { label: 'English',              value: 'english' },
-  { label: 'Hindi',                value: 'hindi' },
-  { label: 'Marathi',              value: 'marathi' },
-  { label: 'Bhojpuri',             value: 'bhojpuri' },
-  { label: 'Tamil',                value: 'tamil' },
-  { label: 'Telugu',               value: 'telugu' },
-  { label: 'Spanish',              value: 'spanish' },
-  { label: 'French',               value: 'french' },
-  { label: 'German',               value: 'german' },
-  { label: 'Arabic',               value: 'arabic' },
-  { label: 'Portuguese',           value: 'portuguese' },
-  { label: 'Chinese (Simplified)', value: 'chinese (simplified)' },
-  { label: 'Japanese',             value: 'japanese' },
-]
+
 
 export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
   const widgetTheme = useMemo(() => {
@@ -106,7 +92,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
   const [loading, setLoading] = useState(false)
   const [attachedImage, setAttachedImage] = useState<string | null>(null)
   const [emojiAnchor, setEmojiAnchor] = useState<HTMLElement | null>(null)
-  const [selectedLang, setSelectedLang] = useState(config.default_language ?? 'english')
+  // Language selector removed
   const [isListening, setIsListening] = useState(false)
   const [humanMode, setHumanMode] = useState(false)
   const [globalError, setGlobalError] = useState<{ message: string; terminated: boolean } | null>(null)
@@ -143,17 +129,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
     const recognition = new SpeechRecognitionAPI()
     recognition.continuous = false
     recognition.interimResults = true
-    recognition.lang = selectedLang === 'hindi' ? 'hi-IN'
-      : selectedLang === 'spanish' ? 'es-ES'
-      : selectedLang === 'french' ? 'fr-FR'
-      : selectedLang === 'german' ? 'de-DE'
-      : selectedLang === 'arabic' ? 'ar-SA'
-      : selectedLang === 'portuguese' ? 'pt-BR'
-      : selectedLang === 'chinese (simplified)' ? 'zh-CN'
-      : selectedLang === 'japanese' ? 'ja-JP'
-      : selectedLang === 'tamil' ? 'ta-IN'
-      : selectedLang === 'telugu' ? 'te-IN'
-      : 'en-US'
+    recognition.lang = 'en-US'
 
     recognition.onstart = () => setIsListening(true)
     recognition.onend = () => setIsListening(false)
@@ -187,9 +163,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
     }
   }
 
-  useEffect(() => {
-    setSelectedLang(config.default_language ?? 'english')
-  }, [config.default_language])
+
 
   // Fetch document list when feature enabled
   useEffect(() => {
@@ -401,10 +375,9 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
       return
     }
 
-    const langSuffix = selectedLang !== 'english' ? `. Generate the response in ${selectedLang}.` : ''
     setLoading(true)
     ws.send(JSON.stringify({
-      query: text.trim() + langSuffix,
+      query: text.trim(),
       top_k: config.rag_top_k ?? 3,
       session_id: sessionIdRef.current ?? null,
     }))
@@ -442,7 +415,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
   const showAttachment = config.show_attachment ?? true
   const showEmoji      = config.show_emoji ?? true
   const showMic         = config.show_mic ?? true
-  const showLanguage    = config.show_language ?? true
+  // const showLanguage    = config.show_language ?? true
   const showSources     = config.show_sources ?? true
   const showHumanHandoff = config.show_human_handoff ?? false
   const showDocSummaries = config.show_doc_summaries ?? false
@@ -1585,54 +1558,7 @@ export default function ChatWidgetV2({ config, assistantId}: ChatWidgetProps) {
                   }}
                 />
 
-                {/* Language selector */}
-                {showLanguage && (
-                  <Tooltip title={`Language: ${LANGUAGES.find(l => l.value === selectedLang)?.label ?? selectedLang} — tap to switch`}>
-                    <Select
-                      value={selectedLang}
-                      onChange={(e) => setSelectedLang(e.target.value)}
-                      variant="standard"
-                      disableUnderline
-                      disabled={loading || isTerminated}
-                      renderValue={() => (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, p: { xs: 0.5, sm: 0.75 } }}>
-                          <LanguageRoundedIcon sx={{ fontSize: 18, color: alpha(config.theme.primary_color, 0.75) }} />
-                          <Box
-                            sx={{
-                              width: 16,
-                              height: 16,
-                              borderRadius: '50%',
-                              bgcolor: alpha(config.theme.primary_color, 0.12),
-                              border: `1px solid ${alpha(config.theme.primary_color, 0.25)}`,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Typography sx={{ fontSize: '0.48rem', fontWeight: 700, color: config.theme.primary_color, lineHeight: 1, fontFamily: 'monospace' }}>
-                              {selectedLang.slice(0, 2).toUpperCase()}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-                      sx={{
-                        flexShrink: 0,
-                        '& .MuiSelect-select': { p: 0, display: 'flex', alignItems: 'center' },
-                        '& .MuiSelect-icon': { display: 'none' },
-                      }}
-                    >
-                      {LANGUAGES.map((lang) => (
-                        <MenuItem key={lang.value} value={lang.value} sx={{ fontSize: '0.82rem', gap: 1 }}>
-                          <Typography sx={{ fontSize: '0.7rem', fontFamily: 'monospace', color: 'text.secondary', minWidth: 22 }}>
-                            {lang.value.slice(0, 2).toUpperCase()}
-                          </Typography>
-                          {lang.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Tooltip>
-                )}
+                {/* Language selector removed */}
               </Box>
 
               {/* Send / Mic button */}
