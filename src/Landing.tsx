@@ -245,6 +245,18 @@ function DemoCarousel() {
  * LANDING PAGE COMPONENT
  */
 const LandingPage = () => {
+  // Unlock body and #root overflow for Landing page only
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalRootOverflow = document.getElementById('root')?.style.overflow;
+    document.body.style.overflow = 'auto';
+    const root = document.getElementById('root');
+    if (root) root.style.overflow = 'auto';
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      if (root && originalRootOverflow !== undefined) root.style.overflow = originalRootOverflow;
+    };
+  }, []);
   return (
     <div className="min-h-screen bg-[#0D0D17] text-white selection:bg-purple-500/30 overflow-x-hidden">
 
