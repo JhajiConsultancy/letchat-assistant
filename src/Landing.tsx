@@ -19,7 +19,12 @@ import {
   Layers,
   Menu,
   X,
+  Download,
+  HeartHandshake,
+  Play,
 } from 'lucide-react';
+import { Card, CardContent } from './components/ui/card';
+import { Badge } from './components/ui/badge';
 
 /* ─── Inline keyframe styles (no extra CSS file needed) ─── */
 const GLOBAL_STYLES = `
@@ -147,29 +152,37 @@ const TESTIMONIALS = [
   },
 ];
 
-const DEMO_SLIDES = [
-  { src: 'https://iskconnasik.letchat.in/?embed=1', label: 'ISKCON Nashik' },
-  { src: 'https://neeraj.letchat.in/?embed=1', label: 'Owner Assistant' },
+const APP_LINKS = {
+  playStore: 'https://play.google.com/store/apps/details?id=com.sharecare.letchat',
+};
 
+const MOBILE_SHOTS = [
+  { src: '/marketing/lcss1.jpg', title: 'Personal twin home' },
+  { src: '/marketing/lcss6.jpg', title: 'Live notification feed' },
+  { src: '/marketing/lcss8.jpg', title: 'Task summary with conclusion' },
 ];
 
-function DemoCarousel() {
+const LETTY_USE_CASES = [
+  {
+    title: 'Propose to someone with confidence',
+    desc: 'Letty can collect thoughts, timing preferences, and mutual feedback before you send the final message.',
+  },
+  {
+    title: 'Plan a trip with friends',
+    desc: 'Ask Letty to coordinate dates, budgets, and destination choices instead of chasing everyone one by one.',
+  },
+  {
+    title: 'Get honest feedback on something',
+    desc: 'Share one question and let Letty gather clean responses from the people you trust.',
+  },
+];
+
+function ScreenshotCarousel() {
   const [active, setActive] = useState(0);
   const touchStartX = useRef<number | null>(null);
 
-  const prev = () => setActive((a) => (a - 1 + DEMO_SLIDES.length) % DEMO_SLIDES.length);
-  const next = () => setActive((a) => (a + 1) % DEMO_SLIDES.length);
-
-  // useEffect(() => {
-  //   const existing = document.querySelector('script[data-widget-letchat]');
-  //   if (existing) return;
-  //   const script = document.createElement("script");
-  //   script.src = "https://cdn.letchat.in/dist/widget.js";
-  //   script.async = true;
-  //   script.setAttribute("data-assistant-id", "iskconnasik");
-  //   script.setAttribute("data-widget-letchat", "1");
-  //   document.body.appendChild(script);
-  // }, []);
+  const prev = () => setActive((a) => (a - 1 + MOBILE_SHOTS.length) % MOBILE_SHOTS.length);
+  const next = () => setActive((a) => (a + 1) % MOBILE_SHOTS.length);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -183,60 +196,63 @@ function DemoCarousel() {
   };
 
   return (
-    <div className="mt-8 select-none">
-      {/* slides */}
-      <div
-        className="relative overflow-hidden rounded-2xl"
+    <div className="w-full max-w-md mx-auto select-none">
+      <Card className="border-white/10 bg-white/5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+        <CardContent className="p-4 md:p-5">
+          <div
+        className="relative overflow-hidden rounded-[1.35rem] bg-[#090912]"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* <div
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${active * 100}%)` }}
-        >
-          {DEMO_SLIDES.map((slide, i) => (
-            <div key={i} className="min-w-full">
-              <iframe
-                title={slide.label}
-                src={slide.src}
-                style={{ width: '100%', minHeight: 560, border: 'none', borderRadius: 16, background: 'white', display: 'block' }}
-                allow="clipboard-write; microphone;"
-              />
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${active * 100}%)` }}
+            >
+              {MOBILE_SHOTS.map((slide) => (
+                <div key={slide.src} className="min-w-full p-3">
+                  <img
+                    src={slide.src}
+                    alt={slide.title}
+                    className="w-full rounded-[1rem] border border-white/10 object-cover"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div> */}
 
-        {/* prev / next arrows */}
-        <button
-          onClick={prev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-[#8E74E4]/80 flex items-center justify-center text-white transition-colors z-10"
-          aria-label="Previous"
-        >
-          <ChevronRight size={16} className="rotate-180" />
-        </button>
-        <button
-          onClick={next}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-[#8E74E4]/80 flex items-center justify-center text-white transition-colors z-10"
-          aria-label="Next"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-
-      {/* dots + label */}
-      <div className="flex flex-col items-center gap-2 mt-3">
-        <div className="flex gap-2">
-          {DEMO_SLIDES.map((_, i) => (
             <button
-              key={i}
-              onClick={() => setActive(i)}
-              className={`w-2 h-2 rounded-full transition-all ${i === active ? 'bg-[#8E74E4] w-5' : 'bg-white/20'}`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
-        <span className="text-xs text-gray-400">{DEMO_SLIDES[active].label}</span>
-      </div>
+              onClick={prev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/55 text-white transition-colors hover:bg-[#8E74E4]/80"
+              aria-label="Previous"
+            >
+              <ChevronRight size={16} className="rotate-180" />
+            </button>
+            <button
+              onClick={next}
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/55 text-white transition-colors hover:bg-[#8E74E4]/80"
+              aria-label="Next"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-white">{MOBILE_SHOTS[active].title}</div>
+              <div className="text-xs text-gray-400">Real LetChat mobile screens</div>
+            </div>
+            <div className="flex gap-2">
+              {MOBILE_SHOTS.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActive(i)}
+                  className={`h-2 rounded-full transition-all ${i === active ? 'w-6 bg-[#8E74E4]' : 'w-2 bg-white/20'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -271,12 +287,26 @@ const LandingPage = () => {
           <a href="#use-cases" className="hover:text-white transition-colors">Use Cases</a>
           <a href="#testimonials" className="hover:text-white transition-colors">Stories</a>
         </div>
-        <button
-          onClick={() => window.location.assign('https://admin.letchat.in')}
-          className="px-4 py-2 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-full text-sm font-medium transition-all"
-        >
-          Start Free →
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href={APP_LINKS.playStore}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-[#8E74E4]/30 bg-white/5 px-3 py-2 text-xs font-semibold text-white/90 transition-colors hover:border-[#8E74E4]/60 hover:bg-white/10"
+          >
+            <Play size={12} className="fill-current" />
+            Google Play
+            <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300 animate-pulse">
+              Pre-registration
+            </span>
+          </a>
+          <button
+            onClick={() => window.location.assign('https://admin.letchat.in')}
+            className="px-4 py-2 bg-[#8E74E4] hover:bg-[#7a60cc] rounded-full text-sm font-medium transition-all"
+          >
+            Start Free →
+          </button>
+        </div>
       </nav>
 
       {/* ── Hero ── */}
@@ -298,7 +328,8 @@ const LandingPage = () => {
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
             Create a personal AI assistant that knows everything about you —
             your work, your prices, your schedule.
-            Share one link and let it handle every question while you live your life.
+            Feed your twin with your knowledge, then attach it to your Instagram bio, WhatsApp, LinkedIn, or website.
+            Let it answer questions while you enjoy your life.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
@@ -314,6 +345,21 @@ const LandingPage = () => {
             >
               See How It Works
             </button>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <a
+              href={APP_LINKS.playStore}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[#8E74E4]/30 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white/90 transition-colors hover:border-[#8E74E4]/60 hover:bg-white/10"
+            >
+              <Play size={14} className="fill-current" />
+              Get it on Google Play
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300 animate-pulse">
+                Pre-registration
+              </span>
+            </a>
           </div>
 
           {/* social proof bar */}
@@ -360,11 +406,57 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
-            {/* Live demo assistant carousel */}
-            <DemoCarousel />
+            {/* Product screenshot carousel */}
+            {/* <div className="mt-8">
+              <ScreenshotCarousel />
+            </div> */}
             {/* badge */}
             <div className="absolute -top-3 -right-3 bg-[#8E74E4] text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
               Live 24 × 7
+            </div>
+          </div>
+        </section>
+
+        <section className="pb-20">
+          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8 backdrop-blur-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-semibold uppercase tracking-[0.18em] mb-4">
+                <Bot size={13} />
+                What LetChat does in simple words
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+                Teach your twin once. Let it answer forever.
+              </h2>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                Add your documents, links, text notes, and voice knowledge. Your twin learns from that material and answers common questions for you.
+              </p>
+              <p className="text-gray-300 leading-relaxed mb-6">
+                Then place your twin link in your Instagram bio, WhatsApp profile, LinkedIn, Facebook, or website so people can ask your bot directly.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[
+                  'Explain what you do without repeating yourself again and again.',
+                  'Share prices, timings, offers, and FAQs automatically.',
+                  'Capture serious intent before you step into the chat.',
+                  'Stay available while traveling, sleeping, or working.',
+                ].map((point) => (
+                  <div key={point} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-gray-200 flex items-start gap-3">
+                    <CheckCircle2 size={16} className="text-[#8E74E4] shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+              {/* <Badge variant="outline" className="mb-4 border-[#8E74E4]/30 bg-[#8E74E4]/8 text-white/90">
+                Mobile preview
+              </Badge>
+              <h3 className="text-xl font-bold mb-2">Product screens in one clean carousel</h3>
+              <p className="text-sm text-gray-400 leading-relaxed mb-5">
+                Desktop visitors can now browse the mobile experience clearly, without stacking screenshots all over the page.
+              </p> */}
+              <ScreenshotCarousel />
             </div>
           </div>
         </section>
@@ -425,6 +517,30 @@ const LandingPage = () => {
                   <h3 className="text-xl font-bold mt-1 mb-2">{u.title}</h3>
                   <p className="text-gray-400 leading-relaxed text-sm">{u.desc}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="text-center mb-14">
+            <span className="text-[#8E74E4] text-sm font-semibold uppercase tracking-widest">Meet Letty</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-3">
+              Letty is your Smart Coordinator.
+            </h2>
+            <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+              Not every conversation should happen manually. Letty helps you coordinate people, collect replies, and move decisions forward.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {LETTY_USE_CASES.map((item) => (
+              <div key={item.title} className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/6 to-white/[0.03] p-7 shadow-[0_10px_40px_rgba(0,0,0,0.18)]">
+                <div className="w-11 h-11 rounded-2xl bg-[#8E74E4]/15 text-[#8E74E4] flex items-center justify-center mb-4">
+                  <HeartHandshake size={18} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -625,7 +741,18 @@ const LandingPage = () => {
             >
               <Bot size={20} /> Create My AI Clone — Free
             </button>
-            <p className="text-gray-500 text-sm">No credit card. No code. Just you.</p>
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-gray-300 text-sm">Google Play pre-registration is active. App Store coming soon.</p>
+              <a
+                href={APP_LINKS.playStore}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/25 px-5 py-3 text-sm font-semibold text-white hover:border-[#8E74E4]/60 transition-colors"
+              >
+                <Download size={15} />
+                Join on Google Play
+              </a>
+            </div>
           </div>
         </section>
 

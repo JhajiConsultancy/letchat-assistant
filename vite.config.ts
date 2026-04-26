@@ -22,14 +22,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
-    host: '0.0.0.0', // Allow any incoming connection (useful for testing subdomains)
-    allowedHosts: true, // Allow any host (e.g., neeraj.localhost)
+     port: 3001,
     proxy: {
       '/api': {
-        target: 'https://api.letchat.in',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        ws: true, // Proxy WebSocket connections for real-time features
+        ws: true,
       },
     },
   },
